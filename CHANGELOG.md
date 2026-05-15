@@ -20,6 +20,7 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 - `getVillagesByBpsDistrictCode()`, `getVillagesByKemendagriDistrictCode()`
 - `getVillagesByPostalCode()` — pencarian desa berdasarkan kode pos
 - Data pipeline scripts (TypeScript) untuk scraping BPS bridging API dan parsing kodepos Kemendagri
+- Contoh penggunaan (`examples/`) untuk 12 framework: React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Express, Hono, Bun, Deno, Node.js
 
 ### Changed
 
