@@ -5,6 +5,26 @@ Semua perubahan penting pada proyek ini akan didokumentasikan di file ini.
 Format berdasarkan [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/),
 dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.0] - 2026-05-15
+
+### Added
+
+- Modul `hierarchy` — reverse lookup dan drill-down tree
+  - `getVillageWithParents()` — dari desa, dapat kecamatan + kabupaten + provinsi
+  - `getDistrictWithParents()` — dari kecamatan, dapat kabupaten + provinsi
+  - `getRegencyWithParent()` — dari kabupaten, dapat provinsi
+  - `getProvinceTree()` — tree lengkap provinsi → kabupaten → kecamatan → desa
+  - `getRegencyTree()` — tree kabupaten → kecamatan → desa
+  - `getDistrictTree()` — tree kecamatan → desa
+- Modul `stats` — penghitungan wilayah
+  - `getRegencyCountByProvince()`, `getDistrictCountByRegency()`, `getVillageCountByDistrict()`
+  - `getDistrictCountByProvince()`, `getVillageCountByRegency()`, `getVillageCountByProvince()`
+  - `getSummary()` — ringkasan total semua level
+- `searchByName()` sekarang menerima parameter kedua `options`:
+  - `level` — filter pencarian ke satu level tertentu
+  - `limit` — batasi jumlah hasil (berguna untuk autocomplete)
+- Tipe baru: `VillageHierarchy`, `DistrictHierarchy`, `RegencyHierarchy`, `ProvinceTree`, `RegencyNode`, `DistrictNode`, `SearchOptions`
+
 ## [1.0.0] - 2025-05-15
 
 ### Added
@@ -57,5 +77,6 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
 - BPS SIG Bridging Kode — Periode 2025 Semester 1 (BPS) - 2025 (Kemendagri)
 
+[1.1.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/releases/tag/v1.1.0
 [1.0.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/releases/tag/v1.0.0
 [0.1.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/releases/tag/v0.1.0
