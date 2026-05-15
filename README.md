@@ -563,6 +563,24 @@ npm run test:coverage # Test + 100% coverage
 npm run build         # Build ESM + CJS
 ```
 
+### Data Pipeline Scripts
+
+Scripts di `scripts/` adalah tool internal untuk memperbarui data (tidak di-publish ke npm):
+
+```bash
+# Scrape BPS bridging API (semua level)
+npx tsx scripts/scrape-bridging.ts
+
+# Scrape desa dengan parallel workers (lebih cepat)
+npx tsx scripts/scrape-desa-fast.ts
+
+# Parse Kemendagri kodepos SQL dump
+npx tsx scripts/parse-kodepos.ts
+
+# Merge semua data menjadi format v1.0
+npx tsx scripts/merge-data.ts
+```
+
 ## Security
 
 Untuk melaporkan kerentanan keamanan, baca [SECURITY.md](SECURITY.md).
