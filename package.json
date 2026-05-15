@@ -115,7 +115,7 @@
     "url": "https://github.com/sumitroajiprabowo/kode-wilayah-id/issues"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
