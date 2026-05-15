@@ -1,8 +1,19 @@
 /**
- * Re-export semua fungsi dan tipe.
+ * Entry point utama paket `kode-wilayah-id`.
  *
- * Bisa juga import langsung dari sub-modul untuk tree-shaking yang lebih baik,
- * misal: `import { getProvinces } from "kode-wilayah-id/provinces"`
+ * Semua fungsi dan tipe di-re-export dari sini, jadi cukup import dari satu tempat:
+ *
+ * ```typescript
+ * import { getProvinces, searchByName, type Province } from "kode-wilayah-id";
+ * ```
+ *
+ * Kalau mau tree-shaking yang lebih optimal (misalnya cuma butuh data provinsi
+ * dan tidak mau bundle data desa 84rb item), bisa import langsung dari sub-modul:
+ *
+ * ```typescript
+ * import { getProvinces } from "kode-wilayah-id/provinces";
+ * import { searchByName } from "kode-wilayah-id/search";
+ * ```
  *
  * @module index
  */
