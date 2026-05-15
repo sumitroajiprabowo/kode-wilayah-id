@@ -4,6 +4,10 @@
  * Menyediakan fungsi untuk mengambil daftar kabupaten/kota dalam satu provinsi,
  * maupun mencari kabupaten/kota tertentu berdasarkan kode BPS atau Kemendagri.
  *
+ * Secara internal, modul ini pakai lazy-initialized `Map` untuk lookup O(1),
+ * bukan linear scan. Map dibuat saat pertama kali dibutuhkan, lalu di-cache
+ * supaya panggilan berikutnya instan.
+ *
  * @example
  * ```typescript
  * import { getRegenciesByBpsProvinceCode, getRegencyByBpsCode } from "kode-wilayah-id/regencies";
@@ -22,6 +26,73 @@ import regenciesData from "../data/regencies.json";
 import type { Regency } from "./types";
 
 const regencies: Regency[] = regenciesData as Regency[];
+
+// ---------------------------------------------------------------------------
+// Lazy-initialized index Maps — dibuat sekali saat pertama kali dipanggil
+// ---------------------------------------------------------------------------
+
+/** Index kode BPS kabupaten → Regency (1-to-1) */
+let bpsIndex: Map<string, Regency> | null = null;
+function getBpsIndex(): Map<string, Regency> {
+	if (!bpsIndex) {
+		bpsIndex = new Map(regencies.map((r) => [r.bps_code, r]));
+	}
+	return bpsIndex;
+}
+
+/** Index kode Kemendagri kabupaten → Regency (1-to-1, skip null) */
+let kemendagriIndex: Map<string, Regency> | null = null;
+function getKemendagriIndex(): Map<string, Regency> {
+	if (!kemendagriIndex) {
+		kemendagriIndex = new Map();
+		for (const r of regencies) {
+			if (r.kemendagri_code) {
+				kemendagriIndex.set(r.kemendagri_code, r);
+			}
+		}
+	}
+	return kemendagriIndex;
+}
+
+/** Index kode BPS provinsi → Regency[] (1-to-many) */
+let bpsProvinceIndex: Map<string, Regency[]> | null = null;
+function getBpsProvinceIndex(): Map<string, Regency[]> {
+	if (!bpsProvinceIndex) {
+		bpsProvinceIndex = new Map();
+		for (const r of regencies) {
+			const arr = bpsProvinceIndex.get(r.bps_province_code);
+			if (arr) {
+				arr.push(r);
+			} else {
+				bpsProvinceIndex.set(r.bps_province_code, [r]);
+			}
+		}
+	}
+	return bpsProvinceIndex;
+}
+
+/** Index kode Kemendagri provinsi → Regency[] (1-to-many, skip null) */
+let kemendagriProvinceIndex: Map<string, Regency[]> | null = null;
+function getKemendagriProvinceIndex(): Map<string, Regency[]> {
+	if (!kemendagriProvinceIndex) {
+		kemendagriProvinceIndex = new Map();
+		for (const r of regencies) {
+			if (r.kemendagri_province_code) {
+				const arr = kemendagriProvinceIndex.get(r.kemendagri_province_code);
+				if (arr) {
+					arr.push(r);
+				} else {
+					kemendagriProvinceIndex.set(r.kemendagri_province_code, [r]);
+				}
+			}
+		}
+	}
+	return kemendagriProvinceIndex;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 /**
  * Ambil seluruh data kabupaten/kota di Indonesia.
@@ -52,7 +123,7 @@ export function getRegencies(): Regency[] {
  * ```
  */
 export function getRegenciesByBpsProvinceCode(code: string): Regency[] {
-	return regencies.filter((r) => r.bps_province_code === code);
+	return getBpsProvinceIndex().get(code) ?? [];
 }
 
 /**
@@ -68,7 +139,7 @@ export function getRegenciesByBpsProvinceCode(code: string): Regency[] {
  * ```
  */
 export function getRegenciesByKemendagriProvinceCode(code: string): Regency[] {
-	return regencies.filter((r) => r.kemendagri_province_code === code);
+	return getKemendagriProvinceIndex().get(code) ?? [];
 }
 
 /**
@@ -85,7 +156,7 @@ export function getRegenciesByKemendagriProvinceCode(code: string): Regency[] {
  * ```
  */
 export function getRegencyByBpsCode(code: string): Regency | undefined {
-	return regencies.find((r) => r.bps_code === code);
+	return getBpsIndex().get(code);
 }
 
 /**
@@ -101,5 +172,5 @@ export function getRegencyByBpsCode(code: string): Regency | undefined {
  * ```
  */
 export function getRegencyByKemendagriCode(code: string): Regency | undefined {
-	return regencies.find((r) => r.kemendagri_code === code);
+	return getKemendagriIndex().get(code);
 }
