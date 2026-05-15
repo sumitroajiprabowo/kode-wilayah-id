@@ -1,16 +1,27 @@
+# Source & tests
 src/
 tests/
+data/
+scripts/
 docs/
-coverage/
-.github/
-.editorconfig
+
+# Config
 tsconfig.json
 tsup.config.ts
 vitest.config.ts
 biome.json
+.editorconfig
+.github/
+.gitignore
+
+# Markdown (except README)
+CHANGELOG.md
 CONTRIBUTING.md
 CODE_OF_CONDUCT.md
 SECURITY.md
+
+# Dev artifacts
+coverage/
 *.tgz
 *.map
 .DS_Store
