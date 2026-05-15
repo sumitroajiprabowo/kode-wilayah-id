@@ -24,11 +24,16 @@ import {
   getVillagesByBpsDistrictCode,
   getVillagesByPostalCode,
   searchByName,
+  // v1.1.0
+  getVillageWithParents,
+  getSummary,
   type Province,
   type Regency,
   type District,
   type Village,
   type SearchResult,
+  type SearchOptions,
+  type VillageHierarchy,
 } from "kode-wilayah-id";
 
 @Injectable({ providedIn: "root" })
@@ -53,8 +58,16 @@ export class WilayahService {
     return getVillagesByPostalCode(postalCode);
   }
 
-  search(query: string): SearchResult[] {
-    return searchByName(query);
+  search(query: string, options?: SearchOptions): SearchResult[] {
+    return searchByName(query, options);
+  }
+
+  getHierarchy(bpsVillageCode: string): VillageHierarchy | undefined {
+    return getVillageWithParents(bpsVillageCode);
+  }
+
+  getSummary() {
+    return getSummary();
   }
 }
 
