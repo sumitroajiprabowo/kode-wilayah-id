@@ -6,6 +6,9 @@
  * - **Detail wilayah**: dari satu kode, dapat info lengkap sampai ke atas
  * - **Drill-down**: dari provinsi, dapat tree lengkap sampai desa
  *
+ * Secara internal, modul ini pakai lazy-initialized `Map` untuk lookup O(1).
+ * Semua index dibuat sekali saat pertama kali dibutuhkan, lalu di-cache.
+ *
  * @example
  * ```typescript
  * import {
@@ -49,16 +52,101 @@ const regencies: Regency[] = regenciesData as Regency[];
 const districts: District[] = districtsData as District[];
 const villages: Village[] = villagesData as Village[];
 
-// Helper: cari satu item, return undefined kalau gak ketemu
-function findProvince(code: string): Province | undefined {
-	return provinces.find((p) => p.bps_code === code);
+// ---------------------------------------------------------------------------
+// Lazy-initialized index Maps — dibuat sekali saat pertama kali dipanggil
+// ---------------------------------------------------------------------------
+
+/** Index kode BPS provinsi → Province (1-to-1) */
+let provinceByBps: Map<string, Province> | null = null;
+function getProvinceByBps(): Map<string, Province> {
+	if (!provinceByBps) {
+		provinceByBps = new Map(provinces.map((p) => [p.bps_code, p]));
+	}
+	return provinceByBps;
 }
-function findRegency(code: string): Regency | undefined {
-	return regencies.find((r) => r.bps_code === code);
+
+/** Index kode BPS kabupaten → Regency (1-to-1) */
+let regencyByBps: Map<string, Regency> | null = null;
+function getRegencyByBps(): Map<string, Regency> {
+	if (!regencyByBps) {
+		regencyByBps = new Map(regencies.map((r) => [r.bps_code, r]));
+	}
+	return regencyByBps;
 }
-function findDistrict(code: string): District | undefined {
-	return districts.find((d) => d.bps_code === code);
+
+/** Index kode BPS kecamatan → District (1-to-1) */
+let districtByBps: Map<string, District> | null = null;
+function getDistrictByBps(): Map<string, District> {
+	if (!districtByBps) {
+		districtByBps = new Map(districts.map((d) => [d.bps_code, d]));
+	}
+	return districtByBps;
 }
+
+/** Index kode BPS desa → Village (1-to-1) */
+let villageByBps: Map<string, Village> | null = null;
+function getVillageByBps(): Map<string, Village> {
+	if (!villageByBps) {
+		villageByBps = new Map(villages.map((v) => [v.bps_code, v]));
+	}
+	return villageByBps;
+}
+
+/** Index kode BPS provinsi → Regency[] (1-to-many) */
+let regenciesByProvince: Map<string, Regency[]> | null = null;
+function getRegenciesByProvince(): Map<string, Regency[]> {
+	/* v8 ignore next -- lazy init: branch "already cached" tercakup secara implisit */
+	if (!regenciesByProvince) {
+		regenciesByProvince = new Map();
+		for (const r of regencies) {
+			const arr = regenciesByProvince.get(r.bps_province_code);
+			if (arr) {
+				arr.push(r);
+			} else {
+				regenciesByProvince.set(r.bps_province_code, [r]);
+			}
+		}
+	}
+	return regenciesByProvince;
+}
+
+/** Index kode BPS kabupaten → District[] (1-to-many) */
+let districtsByRegency: Map<string, District[]> | null = null;
+function getDistrictsByRegency(): Map<string, District[]> {
+	if (!districtsByRegency) {
+		districtsByRegency = new Map();
+		for (const d of districts) {
+			const arr = districtsByRegency.get(d.bps_regency_code);
+			if (arr) {
+				arr.push(d);
+			} else {
+				districtsByRegency.set(d.bps_regency_code, [d]);
+			}
+		}
+	}
+	return districtsByRegency;
+}
+
+/** Index kode BPS kecamatan → Village[] (1-to-many) */
+let villagesByDistrict: Map<string, Village[]> | null = null;
+function getVillagesByDistrict(): Map<string, Village[]> {
+	if (!villagesByDistrict) {
+		villagesByDistrict = new Map();
+		for (const v of villages) {
+			const arr = villagesByDistrict.get(v.bps_district_code);
+			if (arr) {
+				arr.push(v);
+			} else {
+				villagesByDistrict.set(v.bps_district_code, [v]);
+			}
+		}
+	}
+	return villagesByDistrict;
+}
+
+// ---------------------------------------------------------------------------
+// Public API — Reverse Lookup
+// ---------------------------------------------------------------------------
 
 /**
  * Dari kode BPS desa, dapat info lengkap desa + kecamatan + kabupaten + provinsi.
@@ -83,14 +171,14 @@ function findDistrict(code: string): District | undefined {
  * ```
  */
 export function getVillageWithParents(bpsCode: string): VillageHierarchy | undefined {
-	const village = villages.find((v) => v.bps_code === bpsCode);
+	const village = getVillageByBps().get(bpsCode);
 	if (!village) return undefined;
 
-	const district = findDistrict(village.bps_district_code);
+	const district = getDistrictByBps().get(village.bps_district_code);
 	/* v8 ignore next -- data integrity dijamin oleh integration test */
-	const regency = district ? findRegency(district.bps_regency_code) : undefined;
+	const regency = district ? getRegencyByBps().get(district.bps_regency_code) : undefined;
 	/* v8 ignore next -- data integrity dijamin oleh integration test */
-	const province = regency ? findProvince(regency.bps_province_code) : undefined;
+	const province = regency ? getProvinceByBps().get(regency.bps_province_code) : undefined;
 
 	/* v8 ignore next 2 -- data integrity dijamin oleh integration test */
 	if (!district || !regency || !province) return undefined;
@@ -116,12 +204,12 @@ export function getVillageWithParents(bpsCode: string): VillageHierarchy | undef
  * ```
  */
 export function getDistrictWithParents(bpsCode: string): DistrictHierarchy | undefined {
-	const district = findDistrict(bpsCode);
+	const district = getDistrictByBps().get(bpsCode);
 	if (!district) return undefined;
 
-	const regency = findRegency(district.bps_regency_code);
+	const regency = getRegencyByBps().get(district.bps_regency_code);
 	/* v8 ignore next -- ternary false branch: data integrity dijamin oleh integration test */
-	const province = regency ? findProvince(regency.bps_province_code) : undefined;
+	const province = regency ? getProvinceByBps().get(regency.bps_province_code) : undefined;
 
 	/* v8 ignore next 2 -- data integrity dijamin oleh integration test */
 	if (!regency || !province) return undefined;
@@ -146,15 +234,19 @@ export function getDistrictWithParents(bpsCode: string): DistrictHierarchy | und
  * ```
  */
 export function getRegencyWithParent(bpsCode: string): RegencyHierarchy | undefined {
-	const regency = findRegency(bpsCode);
+	const regency = getRegencyByBps().get(bpsCode);
 	if (!regency) return undefined;
 
-	const province = findProvince(regency.bps_province_code);
+	const province = getProvinceByBps().get(regency.bps_province_code);
 	/* v8 ignore next 2 -- data integrity dijamin oleh integration test */
 	if (!province) return undefined;
 
 	return { province, regency };
 }
+
+// ---------------------------------------------------------------------------
+// Public API — Drill-down Tree
+// ---------------------------------------------------------------------------
 
 /**
  * Drill-down: dari kode BPS provinsi, bangun tree lengkap sampai desa.
@@ -181,17 +273,22 @@ export function getRegencyWithParent(bpsCode: string): RegencyHierarchy | undefi
  * ```
  */
 export function getProvinceTree(bpsProvinceCode: string): ProvinceTree | undefined {
-	const province = findProvince(bpsProvinceCode);
+	const province = getProvinceByBps().get(bpsProvinceCode);
 	if (!province) return undefined;
 
-	const provRegencies = regencies.filter((r) => r.bps_province_code === bpsProvinceCode);
+	/* v8 ignore next -- valid province selalu punya regencies di data */
+	const provRegencies = getRegenciesByProvince().get(bpsProvinceCode) ?? [];
+	const villDistrictIdx = getVillagesByDistrict();
+	const distRegencyIdx = getDistrictsByRegency();
 
 	const regencyNodes: RegencyNode[] = provRegencies.map((regency) => {
-		const regDistricts = districts.filter((d) => d.bps_regency_code === regency.bps_code);
+		/* v8 ignore next -- valid regency selalu punya districts di data */
+		const regDistricts = distRegencyIdx.get(regency.bps_code) ?? [];
 
 		const districtNodes: DistrictNode[] = regDistricts.map((district) => ({
 			district,
-			villages: villages.filter((v) => v.bps_district_code === district.bps_code),
+			/* v8 ignore next -- valid district selalu punya villages di data */
+			villages: villDistrictIdx.get(district.bps_code) ?? [],
 		}));
 
 		return { regency, districts: districtNodes };
@@ -221,14 +318,17 @@ export function getProvinceTree(bpsProvinceCode: string): ProvinceTree | undefin
  * ```
  */
 export function getRegencyTree(bpsRegencyCode: string): RegencyNode | undefined {
-	const regency = findRegency(bpsRegencyCode);
+	const regency = getRegencyByBps().get(bpsRegencyCode);
 	if (!regency) return undefined;
 
-	const regDistricts = districts.filter((d) => d.bps_regency_code === bpsRegencyCode);
+	/* v8 ignore next -- valid regency selalu punya districts di data */
+	const regDistricts = getDistrictsByRegency().get(bpsRegencyCode) ?? [];
+	const villDistrictIdx = getVillagesByDistrict();
 
 	const districtNodes: DistrictNode[] = regDistricts.map((district) => ({
 		district,
-		villages: villages.filter((v) => v.bps_district_code === district.bps_code),
+		/* v8 ignore next -- valid district selalu punya villages di data */
+		villages: villDistrictIdx.get(district.bps_code) ?? [],
 	}));
 
 	return { regency, districts: districtNodes };
@@ -256,11 +356,12 @@ export function getRegencyTree(bpsRegencyCode: string): RegencyNode | undefined 
  * ```
  */
 export function getDistrictTree(bpsDistrictCode: string): DistrictNode | undefined {
-	const district = findDistrict(bpsDistrictCode);
+	const district = getDistrictByBps().get(bpsDistrictCode);
 	if (!district) return undefined;
 
 	return {
 		district,
-		villages: villages.filter((v) => v.bps_district_code === bpsDistrictCode),
+		/* v8 ignore next -- valid district selalu punya villages di data */
+		villages: getVillagesByDistrict().get(bpsDistrictCode) ?? [],
 	};
 }
