@@ -127,6 +127,121 @@ export interface Village {
 }
 
 /**
+ * Opsi untuk fungsi `searchByName()`.
+ *
+ * Semua field opsional — kalau tidak diisi, pencarian dilakukan di semua level
+ * tanpa batas jumlah hasil.
+ *
+ * @example
+ * ```typescript
+ * // Cari cuma di level kabupaten, maksimal 5 hasil
+ * searchByName("bandung", { level: "regency", limit: 5 });
+ *
+ * // Cari di semua level, tapi batasi 10 hasil
+ * searchByName("bandung", { limit: 10 });
+ * ```
+ */
+export interface SearchOptions {
+	/**
+	 * Filter berdasarkan level wilayah.
+	 * Kalau tidak diisi, cari di semua level sekaligus.
+	 */
+	level?: "province" | "regency" | "district" | "village";
+	/**
+	 * Batas maksimal jumlah hasil.
+	 * Berguna untuk paginasi atau autocomplete supaya tidak return ribuan item.
+	 * Kalau tidak diisi, return semua yang cocok.
+	 */
+	limit?: number;
+}
+
+/**
+ * Hierarki lengkap dari desa sampai provinsi (reverse lookup).
+ *
+ * Berguna di form alamat — user pilih desa, otomatis keisi kecamatan,
+ * kabupaten, dan provinsi.
+ *
+ * @example
+ * ```typescript
+ * const info = getVillageWithParents("3204052003");
+ * console.log(info?.village.name);  // "NAGREG"
+ * console.log(info?.district.name); // "NAGREG"
+ * console.log(info?.regency.name);  // "KAB. BANDUNG"
+ * console.log(info?.province.name); // "JAWA BARAT"
+ * ```
+ */
+export interface VillageHierarchy {
+	/** Data provinsi */
+	province: Province;
+	/** Data kabupaten/kota */
+	regency: Regency;
+	/** Data kecamatan */
+	district: District;
+	/** Data desa/kelurahan */
+	village: Village;
+}
+
+/**
+ * Hierarki lengkap dari kecamatan sampai provinsi.
+ */
+export interface DistrictHierarchy {
+	/** Data provinsi */
+	province: Province;
+	/** Data kabupaten/kota */
+	regency: Regency;
+	/** Data kecamatan */
+	district: District;
+}
+
+/**
+ * Hierarki lengkap dari kabupaten sampai provinsi.
+ */
+export interface RegencyHierarchy {
+	/** Data provinsi */
+	province: Province;
+	/** Data kabupaten/kota */
+	regency: Regency;
+}
+
+/**
+ * Node kabupaten/kota dalam tree hierarki, berisi daftar kecamatan di bawahnya.
+ */
+export interface RegencyNode {
+	/** Data kabupaten/kota */
+	regency: Regency;
+	/** Daftar kecamatan beserta desa-desanya */
+	districts: DistrictNode[];
+}
+
+/**
+ * Node kecamatan dalam tree hierarki, berisi daftar desa di bawahnya.
+ */
+export interface DistrictNode {
+	/** Data kecamatan */
+	district: District;
+	/** Daftar desa/kelurahan */
+	villages: Village[];
+}
+
+/**
+ * Tree hierarki lengkap satu provinsi — dari provinsi sampai desa.
+ *
+ * @example
+ * ```typescript
+ * const tree = getProvinceTree("11"); // Aceh
+ * console.log(tree?.province.name); // "ACEH"
+ * console.log(tree?.regencies.length); // jumlah kabupaten/kota
+ * console.log(tree?.regencies[0].districts[0].villages.length); // jumlah desa
+ * ```
+ */
+export interface ProvinceTree {
+	/** Data provinsi */
+	province: Province;
+	/** Daftar kabupaten/kota beserta kecamatan dan desa di bawahnya */
+	regencies: RegencyNode[];
+}
+
+/**
  * Hasil pencarian wilayah — discriminated union berdasarkan `level`.
  *
  * Karena `searchByName()` mencari di semua level sekaligus, hasilnya bisa
