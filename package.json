@@ -1,7 +1,7 @@
 {
   "name": "kode-wilayah-id",
-  "version": "0.1.0",
-  "description": "Data kode wilayah Indonesia lengkap (provinsi, kabupaten/kota, kecamatan, desa/kelurahan) dari BPS — TypeScript, tree-shakeable, zero dependencies",
+  "version": "1.0.0",
+  "description": "Data kode wilayah Indonesia lengkap dengan dual kode BPS & Kemendagri + kode pos — TypeScript, tree-shakeable, zero dependencies",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -100,6 +100,8 @@
     "kecamatan",
     "desa",
     "bps",
+    "kemendagri",
+    "kodepos",
     "kode-wilayah",
     "region-codes",
     "administrative"
