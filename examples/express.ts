@@ -78,15 +78,15 @@ app.get("/api/villages", (req, res) => {
   res.json(getVillagesByBpsDistrictCode(district as string));
 });
 
+// Postal code lookup (must be before :code to avoid matching "postal" as code)
+app.get("/api/villages/postal/:postalCode", (req, res) => {
+  res.json(getVillagesByPostalCode(req.params.postalCode));
+});
+
 app.get("/api/villages/:code", (req, res) => {
   const village = getVillageByBpsCode(req.params.code);
   if (!village) return res.status(404).json({ error: "Village not found" });
   res.json(village);
-});
-
-// Postal code lookup
-app.get("/api/villages/postal/:postalCode", (req, res) => {
-  res.json(getVillagesByPostalCode(req.params.postalCode));
 });
 
 // Search
