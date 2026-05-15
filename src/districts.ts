@@ -7,6 +7,10 @@
  * Perlu diketahui: format kode BPS dan Kemendagri berbeda di level kecamatan.
  * BPS pakai 7 digit (contoh: `"3204050"`), Kemendagri pakai 6 digit (contoh: `"320407"`).
  *
+ * Secara internal, modul ini pakai lazy-initialized `Map` untuk lookup O(1),
+ * bukan linear scan. Map dibuat saat pertama kali dibutuhkan, lalu di-cache
+ * supaya panggilan berikutnya instan.
+ *
  * @example
  * ```typescript
  * import { getDistrictsByBpsRegencyCode, getDistrictByBpsCode } from "kode-wilayah-id/districts";
@@ -25,6 +29,73 @@ import districtsData from "../data/districts.json";
 import type { District } from "./types";
 
 const districts: District[] = districtsData as District[];
+
+// ---------------------------------------------------------------------------
+// Lazy-initialized index Maps — dibuat sekali saat pertama kali dipanggil
+// ---------------------------------------------------------------------------
+
+/** Index kode BPS kecamatan → District (1-to-1) */
+let bpsIndex: Map<string, District> | null = null;
+function getBpsIndex(): Map<string, District> {
+	if (!bpsIndex) {
+		bpsIndex = new Map(districts.map((d) => [d.bps_code, d]));
+	}
+	return bpsIndex;
+}
+
+/** Index kode Kemendagri kecamatan → District (1-to-1, skip null) */
+let kemendagriIndex: Map<string, District> | null = null;
+function getKemendagriIndex(): Map<string, District> {
+	if (!kemendagriIndex) {
+		kemendagriIndex = new Map();
+		for (const d of districts) {
+			if (d.kemendagri_code) {
+				kemendagriIndex.set(d.kemendagri_code, d);
+			}
+		}
+	}
+	return kemendagriIndex;
+}
+
+/** Index kode BPS kabupaten → District[] (1-to-many) */
+let bpsRegencyIndex: Map<string, District[]> | null = null;
+function getBpsRegencyIndex(): Map<string, District[]> {
+	if (!bpsRegencyIndex) {
+		bpsRegencyIndex = new Map();
+		for (const d of districts) {
+			const arr = bpsRegencyIndex.get(d.bps_regency_code);
+			if (arr) {
+				arr.push(d);
+			} else {
+				bpsRegencyIndex.set(d.bps_regency_code, [d]);
+			}
+		}
+	}
+	return bpsRegencyIndex;
+}
+
+/** Index kode Kemendagri kabupaten → District[] (1-to-many, skip null) */
+let kemendagriRegencyIndex: Map<string, District[]> | null = null;
+function getKemendagriRegencyIndex(): Map<string, District[]> {
+	if (!kemendagriRegencyIndex) {
+		kemendagriRegencyIndex = new Map();
+		for (const d of districts) {
+			if (d.kemendagri_regency_code) {
+				const arr = kemendagriRegencyIndex.get(d.kemendagri_regency_code);
+				if (arr) {
+					arr.push(d);
+				} else {
+					kemendagriRegencyIndex.set(d.kemendagri_regency_code, [d]);
+				}
+			}
+		}
+	}
+	return kemendagriRegencyIndex;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 /**
  * Ambil seluruh data kecamatan di Indonesia.
@@ -56,7 +127,7 @@ export function getDistricts(): District[] {
  * ```
  */
 export function getDistrictsByBpsRegencyCode(code: string): District[] {
-	return districts.filter((d) => d.bps_regency_code === code);
+	return getBpsRegencyIndex().get(code) ?? [];
 }
 
 /**
@@ -72,7 +143,7 @@ export function getDistrictsByBpsRegencyCode(code: string): District[] {
  * ```
  */
 export function getDistrictsByKemendagriRegencyCode(code: string): District[] {
-	return districts.filter((d) => d.kemendagri_regency_code === code);
+	return getKemendagriRegencyIndex().get(code) ?? [];
 }
 
 /**
@@ -89,7 +160,7 @@ export function getDistrictsByKemendagriRegencyCode(code: string): District[] {
  * ```
  */
 export function getDistrictByBpsCode(code: string): District | undefined {
-	return districts.find((d) => d.bps_code === code);
+	return getBpsIndex().get(code);
 }
 
 /**
@@ -105,5 +176,5 @@ export function getDistrictByBpsCode(code: string): District | undefined {
  * ```
  */
 export function getDistrictByKemendagriCode(code: string): District | undefined {
-	return districts.find((d) => d.kemendagri_code === code);
+	return getKemendagriIndex().get(code);
 }
