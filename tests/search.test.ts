@@ -38,20 +38,22 @@ describe("searchByName", () => {
 		expect(searchByName("XYZNONEXISTENT999")).toEqual([]);
 	});
 
-	it("each result has correct level discriminator", () => {
+	it("each result has correct level discriminator and v1.0 fields", () => {
 		const results = searchByName("bandung");
 		for (const r of results) {
 			expect(["province", "regency", "district", "village"]).toContain(r.level);
-			expect(r.data).toHaveProperty("id");
+			expect(r.data).toHaveProperty("bps_code");
+			expect(r.data).toHaveProperty("kemendagri_code");
 			expect(r.data).toHaveProperty("name");
 		}
 	});
 
-	it("regency results have province_id", () => {
+	it("regency results have bps_province_code", () => {
 		const results = searchByName("bandung");
 		const regencies = results.filter((r) => r.level === "regency");
 		for (const r of regencies) {
-			expect(r.data).toHaveProperty("province_id");
+			expect(r.data).toHaveProperty("bps_province_code");
+			expect(r.data).toHaveProperty("kemendagri_province_code");
 		}
 	});
 });
