@@ -86,9 +86,9 @@ jobs:
           test -f dist/provinces.d.ts
           echo "All expected dist files exist"
       - name: Test CJS import
-        run: node -e "const p = require('./dist/provinces.cjs'); console.log('CJS OK:', p.getProvinces().length, 'provinces')"
+        run: node -e "const p = require('./dist/provinces.cjs'); console.log('CJS OK:', p.getProvinces().length, 'provinces'); const v = p.getProvinces()[0]; if(!v.bps_code) throw new Error('Missing bps_code')"
       - name: Test ESM import
-        run: node --input-type=module -e "import { getProvinces } from './dist/provinces.js'; console.log('ESM OK:', getProvinces().length, 'provinces')"
+        run: node --input-type=module -e "import { getProvinces } from './dist/provinces.js'; console.log('ESM OK:', getProvinces().length, 'provinces'); const v = getProvinces()[0]; if(!v.bps_code) throw new Error('Missing bps_code')"
 
   audit:
     name: Security Audit
