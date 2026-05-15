@@ -8,6 +8,10 @@
  * PT Pos Indonesia. Bernilai `null` kalau kode pos belum tersedia — ini
  * terutama terjadi di wilayah Papua pemekaran.
  *
+ * Secara internal, modul ini pakai lazy-initialized `Map` untuk lookup O(1),
+ * bukan linear scan. Map dibuat saat pertama kali dibutuhkan, lalu di-cache
+ * supaya panggilan berikutnya instan.
+ *
  * @example
  * ```typescript
  * import { getVillagesByBpsDistrictCode, getVillagesByPostalCode } from "kode-wilayah-id/villages";
@@ -26,6 +30,92 @@ import villagesData from "../data/villages.json";
 import type { Village } from "./types";
 
 const villages: Village[] = villagesData as Village[];
+
+// ---------------------------------------------------------------------------
+// Lazy-initialized index Maps — dibuat sekali saat pertama kali dipanggil
+// ---------------------------------------------------------------------------
+
+/** Index kode BPS desa → Village (1-to-1) */
+let bpsIndex: Map<string, Village> | null = null;
+function getBpsIndex(): Map<string, Village> {
+	if (!bpsIndex) {
+		bpsIndex = new Map(villages.map((v) => [v.bps_code, v]));
+	}
+	return bpsIndex;
+}
+
+/** Index kode Kemendagri desa → Village (1-to-1, skip null) */
+let kemendagriIndex: Map<string, Village> | null = null;
+function getKemendagriIndex(): Map<string, Village> {
+	if (!kemendagriIndex) {
+		kemendagriIndex = new Map();
+		for (const v of villages) {
+			if (v.kemendagri_code) {
+				kemendagriIndex.set(v.kemendagri_code, v);
+			}
+		}
+	}
+	return kemendagriIndex;
+}
+
+/** Index kode BPS kecamatan → Village[] (1-to-many) */
+let bpsDistrictIndex: Map<string, Village[]> | null = null;
+function getBpsDistrictIndex(): Map<string, Village[]> {
+	if (!bpsDistrictIndex) {
+		bpsDistrictIndex = new Map();
+		for (const v of villages) {
+			const arr = bpsDistrictIndex.get(v.bps_district_code);
+			if (arr) {
+				arr.push(v);
+			} else {
+				bpsDistrictIndex.set(v.bps_district_code, [v]);
+			}
+		}
+	}
+	return bpsDistrictIndex;
+}
+
+/** Index kode Kemendagri kecamatan → Village[] (1-to-many, skip null) */
+let kemendagriDistrictIndex: Map<string, Village[]> | null = null;
+function getKemendagriDistrictIndex(): Map<string, Village[]> {
+	if (!kemendagriDistrictIndex) {
+		kemendagriDistrictIndex = new Map();
+		for (const v of villages) {
+			if (v.kemendagri_district_code) {
+				const arr = kemendagriDistrictIndex.get(v.kemendagri_district_code);
+				if (arr) {
+					arr.push(v);
+				} else {
+					kemendagriDistrictIndex.set(v.kemendagri_district_code, [v]);
+				}
+			}
+		}
+	}
+	return kemendagriDistrictIndex;
+}
+
+/** Index kode pos → Village[] (1-to-many, skip null) */
+let postalCodeIndex: Map<string, Village[]> | null = null;
+function getPostalCodeIndex(): Map<string, Village[]> {
+	if (!postalCodeIndex) {
+		postalCodeIndex = new Map();
+		for (const v of villages) {
+			if (v.postal_code) {
+				const arr = postalCodeIndex.get(v.postal_code);
+				if (arr) {
+					arr.push(v);
+				} else {
+					postalCodeIndex.set(v.postal_code, [v]);
+				}
+			}
+		}
+	}
+	return postalCodeIndex;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 /**
  * Ambil seluruh data desa/kelurahan di Indonesia.
@@ -60,7 +150,7 @@ export function getVillages(): Village[] {
  * ```
  */
 export function getVillagesByBpsDistrictCode(code: string): Village[] {
-	return villages.filter((v) => v.bps_district_code === code);
+	return getBpsDistrictIndex().get(code) ?? [];
 }
 
 /**
@@ -76,7 +166,7 @@ export function getVillagesByBpsDistrictCode(code: string): Village[] {
  * ```
  */
 export function getVillagesByKemendagriDistrictCode(code: string): Village[] {
-	return villages.filter((v) => v.kemendagri_district_code === code);
+	return getKemendagriDistrictIndex().get(code) ?? [];
 }
 
 /**
@@ -93,7 +183,7 @@ export function getVillagesByKemendagriDistrictCode(code: string): Village[] {
  * ```
  */
 export function getVillageByBpsCode(code: string): Village | undefined {
-	return villages.find((v) => v.bps_code === code);
+	return getBpsIndex().get(code);
 }
 
 /**
@@ -109,7 +199,7 @@ export function getVillageByBpsCode(code: string): Village | undefined {
  * ```
  */
 export function getVillageByKemendagriCode(code: string): Village | undefined {
-	return villages.find((v) => v.kemendagri_code === code);
+	return getKemendagriIndex().get(code);
 }
 
 /**
@@ -133,5 +223,5 @@ export function getVillageByKemendagriCode(code: string): Village | undefined {
  * ```
  */
 export function getVillagesByPostalCode(code: string): Village[] {
-	return villages.filter((v) => v.postal_code === code);
+	return getPostalCodeIndex().get(code) ?? [];
 }
