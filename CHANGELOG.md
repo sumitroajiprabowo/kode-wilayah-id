@@ -19,7 +19,7 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 - `getVillageByBpsCode()`, `getVillageByKemendagriCode()`
 - `getVillagesByBpsDistrictCode()`, `getVillagesByKemendagriDistrictCode()`
 - `getVillagesByPostalCode()` — pencarian desa berdasarkan kode pos
-- Data pipeline scripts untuk scraping BPS bridging API dan parsing kodepos Kemendagri
+- Data pipeline scripts (TypeScript) untuk scraping BPS bridging API dan parsing kodepos Kemendagri
 
 ### Changed
 
