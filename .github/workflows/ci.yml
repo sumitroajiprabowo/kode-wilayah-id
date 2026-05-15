@@ -81,10 +81,31 @@ jobs:
           test -f dist/index.js
           test -f dist/index.cjs
           test -f dist/index.d.ts
+          test -f dist/types.js
+          test -f dist/types.cjs
+          test -f dist/types.d.ts
           test -f dist/provinces.js
           test -f dist/provinces.cjs
           test -f dist/provinces.d.ts
-          echo "All expected dist files exist"
+          test -f dist/regencies.js
+          test -f dist/regencies.cjs
+          test -f dist/regencies.d.ts
+          test -f dist/districts.js
+          test -f dist/districts.cjs
+          test -f dist/districts.d.ts
+          test -f dist/villages.js
+          test -f dist/villages.cjs
+          test -f dist/villages.d.ts
+          test -f dist/search.js
+          test -f dist/search.cjs
+          test -f dist/search.d.ts
+          test -f dist/hierarchy.js
+          test -f dist/hierarchy.cjs
+          test -f dist/hierarchy.d.ts
+          test -f dist/stats.js
+          test -f dist/stats.cjs
+          test -f dist/stats.d.ts
+          echo "All expected dist files exist (9 entry points × 3 formats = 27 files)"
       - name: Test CJS import
         run: node -e "const p = require('./dist/provinces.cjs'); console.log('CJS OK:', p.getProvinces().length, 'provinces'); const v = p.getProvinces()[0]; if(!v.bps_code) throw new Error('Missing bps_code')"
       - name: Test ESM import
