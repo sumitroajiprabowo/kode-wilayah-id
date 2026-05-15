@@ -1,19 +1,8 @@
 /**
- * Titik masuk utama (barrel file) untuk paket `kode-wilayah-id`.
+ * Re-export semua fungsi dan tipe.
  *
- * Modul ini mengekspor ulang seluruh fungsi dan tipe dari sub-modul,
- * sehingga konsumer cukup mengimpor dari satu entry point:
- *
- * ```typescript
- * import { getProvinces, searchByName } from "kode-wilayah-id";
- * ```
- *
- * Untuk tree-shaking yang lebih optimal, impor langsung dari sub-modul:
- *
- * ```typescript
- * import { getProvinces } from "kode-wilayah-id/provinces";
- * import { searchByName } from "kode-wilayah-id/search";
- * ```
+ * Bisa juga import langsung dari sub-modul untuk tree-shaking yang lebih baik,
+ * misal: `import { getProvinces } from "kode-wilayah-id/provinces"`
  *
  * @module index
  */
