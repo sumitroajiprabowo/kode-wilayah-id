@@ -5,6 +5,9 @@
  * kecamatan, dan desa/kelurahan. Pencarian bersifat case-insensitive dan pakai
  * substring matching (bukan exact match).
  *
+ * Karena semua nama wilayah di data sudah tersimpan dalam format UPPERCASE,
+ * pencarian cukup meng-uppercase query-nya saja — tidak perlu uppercase data lagi.
+ *
  * Sejak v1.1.0, `searchByName()` menerima parameter kedua `options` untuk
  * filter level dan batasi jumlah hasil — berguna untuk autocomplete dan paginasi.
  *
@@ -83,7 +86,7 @@ export function searchByName(query: string, options?: SearchOptions): SearchResu
 	if (!level || level === "province") {
 		for (const p of provinces) {
 			if (limit && results.length >= limit) return results;
-			if (p.name.toUpperCase().includes(upperQuery)) {
+			if (p.name.includes(upperQuery)) {
 				results.push({ level: "province", data: p });
 			}
 		}
@@ -92,7 +95,7 @@ export function searchByName(query: string, options?: SearchOptions): SearchResu
 	if (!level || level === "regency") {
 		for (const r of regencies) {
 			if (limit && results.length >= limit) return results;
-			if (r.name.toUpperCase().includes(upperQuery)) {
+			if (r.name.includes(upperQuery)) {
 				results.push({ level: "regency", data: r });
 			}
 		}
@@ -101,7 +104,7 @@ export function searchByName(query: string, options?: SearchOptions): SearchResu
 	if (!level || level === "district") {
 		for (const d of districts) {
 			if (limit && results.length >= limit) return results;
-			if (d.name.toUpperCase().includes(upperQuery)) {
+			if (d.name.includes(upperQuery)) {
 				results.push({ level: "district", data: d });
 			}
 		}
@@ -110,7 +113,7 @@ export function searchByName(query: string, options?: SearchOptions): SearchResu
 	if (!level || level === "village") {
 		for (const v of villages) {
 			if (limit && results.length >= limit) return results;
-			if (v.name.toUpperCase().includes(upperQuery)) {
+			if (v.name.includes(upperQuery)) {
 				results.push({ level: "village", data: v });
 			}
 		}
