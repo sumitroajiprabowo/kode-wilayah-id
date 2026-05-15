@@ -18,6 +18,10 @@
     getDistrictsByBpsRegencyCode,
     getVillagesByBpsDistrictCode,
     searchByName,
+    // v1.1.0
+    getVillageWithParents,
+    getSummary,
+    type SearchOptions,
   } from "kode-wilayah-id";
 
   let selectedProvince = $state("");
@@ -25,8 +29,10 @@
   let selectedDistrict = $state("");
   let selectedVillage = $state("");
   let searchQuery = $state("");
+  let searchLevel = $state<SearchOptions["level"]>(undefined);
 
   const provinces = getProvinces();
+  const summary = getSummary();
 
   let regencies = $derived(
     selectedProvince ? getRegenciesByBpsProvinceCode(selectedProvince) : []
@@ -45,7 +51,14 @@
   );
 
   let searchResults = $derived(
-    searchQuery.length >= 3 ? searchByName(searchQuery) : []
+    searchQuery.length >= 3
+      ? searchByName(searchQuery, { level: searchLevel, limit: 20 })
+      : []
+  );
+
+  // Hierarchy — reverse lookup ketika desa dipilih
+  let villageHierarchy = $derived(
+    selectedVillage ? getVillageWithParents(selectedVillage) : null
   );
 
   function onProvinceChange() {
@@ -101,11 +114,18 @@
     {/each}
   </select>
 
-  <!-- Hasil -->
+  <!-- Hasil + Hierarchy -->
   {#if villageDetail}
     <div style="margin-top: 16px">
       <h3>Wilayah Terpilih</h3>
       <pre>{JSON.stringify(villageDetail, null, 2)}</pre>
+
+      {#if villageHierarchy}
+        <h4>Hierarchy (Reverse Lookup)</h4>
+        <p>Kecamatan: {villageHierarchy.district.name}</p>
+        <p>Kabupaten: {villageHierarchy.regency.name}</p>
+        <p>Provinsi: {villageHierarchy.province.name}</p>
+      {/if}
     </div>
   {/if}
 
@@ -116,6 +136,13 @@
     placeholder="Ketik nama wilayah (min. 3 karakter)..."
     bind:value={searchQuery}
   />
+  <select bind:value={searchLevel}>
+    <option value={undefined}>Semua level</option>
+    <option value="province">Provinsi</option>
+    <option value="regency">Kabupaten/Kota</option>
+    <option value="district">Kecamatan</option>
+    <option value="village">Desa/Kelurahan</option>
+  </select>
   <ul>
     {#each searchResults.slice(0, 20) as r (`${r.level}-${r.data.bps_code}`)}
       <li>
@@ -124,4 +151,8 @@
       </li>
     {/each}
   </ul>
+
+  <!-- Stats -->
+  <h2>Statistik</h2>
+  <p>Provinsi: {summary.provinces} | Kabupaten/Kota: {summary.regencies} | Kecamatan: {summary.districts} | Desa: {summary.villages}</p>
 </div>
