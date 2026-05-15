@@ -22,6 +22,10 @@ import {
   getVillagesByBpsDistrictCode,
   getVillagesByPostalCode,
   searchByName,
+  // v1.1.0
+  getVillageWithParents,
+  getSummary,
+  type SearchOptions,
 } from "kode-wilayah-id";
 
 export default defineEventHandler((event) => {
