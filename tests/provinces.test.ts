@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getProvinceById, getProvinces } from "../src/provinces";
+import { getProvinceByBpsCode, getProvinceByKemendagriCode, getProvinces } from "../src/provinces";
 
 describe("getProvinces", () => {
 	it("returns 38 provinces", () => {
@@ -9,9 +9,10 @@ describe("getProvinces", () => {
 	it("returns Province[] with correct shape", () => {
 		const provinces = getProvinces();
 		for (const p of provinces) {
-			expect(p).toHaveProperty("id");
+			expect(p).toHaveProperty("bps_code");
+			expect(p).toHaveProperty("kemendagri_code");
 			expect(p).toHaveProperty("name");
-			expect(typeof p.id).toBe("string");
+			expect(typeof p.bps_code).toBe("string");
 			expect(typeof p.name).toBe("string");
 		}
 	});
@@ -24,24 +25,54 @@ describe("getProvinces", () => {
 	});
 });
 
-describe("getProvinceById", () => {
-	it('finds JAWA BARAT by id "32"', () => {
-		const p = getProvinceById("32");
+describe("getProvinceByBpsCode", () => {
+	it('finds JAWA BARAT by BPS code "32"', () => {
+		const p = getProvinceByBpsCode("32");
 		expect(p).toBeDefined();
 		expect(p?.name).toBe("JAWA BARAT");
+		expect(p?.bps_code).toBe("32");
 	});
 
-	it('finds ACEH by id "11"', () => {
-		const p = getProvinceById("11");
+	it('finds ACEH by BPS code "11"', () => {
+		const p = getProvinceByBpsCode("11");
 		expect(p).toBeDefined();
 		expect(p?.name).toBe("ACEH");
 	});
 
-	it('returns undefined for non-existent id "99"', () => {
-		expect(getProvinceById("99")).toBeUndefined();
+	it("returns province with kemendagri_code for provinces in bridging", () => {
+		const p = getProvinceByBpsCode("11");
+		expect(p?.kemendagri_code).toBe("11");
+	});
+
+	it("returns province with kemendagri_code null for Papua Barat Daya (92)", () => {
+		const p = getProvinceByBpsCode("92");
+		expect(p).toBeDefined();
+		expect(p?.name).toBe("PAPUA BARAT DAYA");
+		expect(p?.kemendagri_code).toBeNull();
+	});
+
+	it('returns undefined for non-existent code "99"', () => {
+		expect(getProvinceByBpsCode("99")).toBeUndefined();
 	});
 
 	it("returns undefined for empty string", () => {
-		expect(getProvinceById("")).toBeUndefined();
+		expect(getProvinceByBpsCode("")).toBeUndefined();
+	});
+});
+
+describe("getProvinceByKemendagriCode", () => {
+	it('finds JAWA BARAT by Kemendagri code "32"', () => {
+		const p = getProvinceByKemendagriCode("32");
+		expect(p).toBeDefined();
+		expect(p?.name).toBe("JAWA BARAT");
+		expect(p?.bps_code).toBe("32");
+	});
+
+	it('returns undefined for non-existent code "99"', () => {
+		expect(getProvinceByKemendagriCode("99")).toBeUndefined();
+	});
+
+	it("returns undefined for empty string", () => {
+		expect(getProvinceByKemendagriCode("")).toBeUndefined();
 	});
 });
