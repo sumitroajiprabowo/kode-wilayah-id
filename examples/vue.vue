@@ -21,6 +21,10 @@ import {
   getDistrictsByBpsRegencyCode,
   getVillagesByBpsDistrictCode,
   searchByName,
+  // v1.1.0
+  getVillageWithParents,
+  getSummary,
+  type SearchOptions,
 } from "kode-wilayah-id";
 
 // Selected codes
@@ -29,9 +33,11 @@ const selectedRegency = ref("");
 const selectedDistrict = ref("");
 const selectedVillage = ref("");
 const searchQuery = ref("");
+const searchLevel = ref<SearchOptions["level"]>(undefined);
 
 // Data
 const provinces = getProvinces();
+const summary = getSummary();
 
 const regencies = computed(() =>
   selectedProvince.value
@@ -52,8 +58,16 @@ const villages = computed(() =>
 );
 
 const searchResults = computed(() =>
-  searchQuery.value.length >= 3 ? searchByName(searchQuery.value) : []
+  searchQuery.value.length >= 3
+    ? searchByName(searchQuery.value, { level: searchLevel.value, limit: 20 })
+    : []
 );
+
+// Hierarchy — reverse lookup ketika desa dipilih
+const villageHierarchy = computed(() => {
+  if (!selectedVillage.value) return null;
+  return getVillageWithParents(selectedVillage.value);
+});
 
 // Handlers
 function onProvinceChange() {
@@ -137,10 +151,17 @@ const villageDetail = computed(() =>
       </option>
     </select>
 
-    <!-- Hasil -->
+    <!-- Hasil + Hierarchy -->
     <div v-if="villageDetail" style="margin-top: 16px">
       <h3>Wilayah Terpilih</h3>
       <pre>{{ JSON.stringify(villageDetail, null, 2) }}</pre>
+
+      <div v-if="villageHierarchy">
+        <h4>Hierarchy (Reverse Lookup)</h4>
+        <p>Kecamatan: {{ villageHierarchy.district.name }}</p>
+        <p>Kabupaten: {{ villageHierarchy.regency.name }}</p>
+        <p>Provinsi: {{ villageHierarchy.province.name }}</p>
+      </div>
     </div>
 
     <!-- Search -->
@@ -150,11 +171,22 @@ const villageDetail = computed(() =>
       type="text"
       placeholder="Ketik nama wilayah (min. 3 karakter)..."
     />
+    <select v-model="searchLevel">
+      <option :value="undefined">Semua level</option>
+      <option value="province">Provinsi</option>
+      <option value="regency">Kabupaten/Kota</option>
+      <option value="district">Kecamatan</option>
+      <option value="village">Desa/Kelurahan</option>
+    </select>
     <ul>
       <li v-for="r in searchResults.slice(0, 20)" :key="`${r.level}-${r.data.bps_code}`">
         <strong>[{{ r.level }}]</strong> {{ r.data.name }}
         <small> — BPS: {{ r.data.bps_code }}</small>
       </li>
     </ul>
+
+    <!-- Stats -->
+    <h2>Statistik</h2>
+    <p>Provinsi: {{ summary.provinces }} | Kabupaten/Kota: {{ summary.regencies }} | Kecamatan: {{ summary.districts }} | Desa: {{ summary.villages }}</p>
   </div>
 </template>
