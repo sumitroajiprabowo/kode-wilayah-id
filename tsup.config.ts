@@ -9,6 +9,8 @@ export default defineConfig({
     "src/districts.ts",
     "src/villages.ts",
     "src/search.ts",
+    "src/hierarchy.ts",
+    "src/stats.ts",
   ],
   format: ["esm", "cjs"],
   dts: true,
