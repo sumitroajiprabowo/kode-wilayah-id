@@ -1,11 +1,21 @@
 # kode-wilayah-id
 
 [![npm version](https://img.shields.io/npm/v/kode-wilayah-id.svg)](https://www.npmjs.com/package/kode-wilayah-id)
+[![CI](https://github.com/sumitroajiprabowo/kode-wilayah-id/actions/workflows/ci.yml/badge.svg)](https://github.com/sumitroajiprabowo/kode-wilayah-id/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/sumitroajiprabowo/kode-wilayah-id)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org/)
+[![Bundle Size](https://img.shields.io/badge/provinces-1.9KB-green.svg)](https://www.npmjs.com/package/kode-wilayah-id)
+[![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](https://www.npmjs.com/package/kode-wilayah-id)
 
 Data **kode wilayah Indonesia** lengkap (provinsi, kabupaten/kota, kecamatan, desa/kelurahan) dari BPS.
 
-`npm install kode-wilayah-id` — tidak perlu database, API call, atau file eksternal. Semua data ter-embed di package, langsung pakai.
+```bash
+npm install kode-wilayah-id
+```
+
+Tidak perlu database, API call, atau file eksternal. Semua data ter-embed di package, langsung pakai.
 
 **Periode data:** 2025 Semester 1 (BPS) - 2025 (Kemendagri)
 
@@ -26,6 +36,8 @@ npm install kode-wilayah-id
 yarn add kode-wilayah-id
 # atau
 pnpm add kode-wilayah-id
+# atau
+bun add kode-wilayah-id
 ```
 
 ## Quick Start
@@ -351,9 +363,35 @@ Semua function dan data fully typed. IDE auto-complete bekerja out of the box:
 import type { Province, Regency, District, Village, SearchResult } from 'kode-wilayah-id/types'
 ```
 
+## Contributing
+
+Kontribusi sangat diterima! Baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan lengkap.
+
+```bash
+# Setup development
+git clone https://github.com/sumitroajiprabowo/kode-wilayah-id.git
+cd kode-wilayah-id
+npm install
+
+# Development workflow
+npm run lint          # Lint check
+npm run format:check  # Format check
+npm run typecheck     # TypeScript check
+npm run test:coverage # Test + 100% coverage
+npm run build         # Build ESM + CJS
+```
+
+## Security
+
+Untuk melaporkan kerentanan keamanan, baca [SECURITY.md](SECURITY.md).
+
+## Changelog
+
+Lihat [CHANGELOG.md](CHANGELOG.md) untuk riwayat perubahan.
+
 ## Lisensi
 
-[MIT](LICENSE)
+[MIT](LICENSE) © [Sumitro Aji Prabowo](https://github.com/sumitroajiprabowo)
 
 ## Acknowledgments
 
