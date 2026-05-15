@@ -62,6 +62,9 @@ import {
   getProvinces,
   getProvinceByBpsCode,
   getProvinceByKemendagriCode,
+  getRegenciesByBpsProvinceCode,
+  getDistrictsByBpsRegencyCode,
+  getVillagesByBpsDistrictCode,
   getVillagesByPostalCode,
   searchByName,
 } from 'kode-wilayah-id'
@@ -69,19 +72,20 @@ import {
 // Semua provinsi
 const provinces = getProvinces() // Province[] (38 items)
 
-// Cari provinsi by kode BPS
+// Lookup by kode BPS
 const jabar = getProvinceByBpsCode('32')
-console.log(jabar?.name) // "JAWA BARAT"
-console.log(jabar?.bps_code) // "32"
-console.log(jabar?.kemendagri_code) // "32"
+// -> { bps_code: "32", kemendagri_code: "32", name: "JAWA BARAT" }
 
-// Cari provinsi by kode Kemendagri
+// Lookup by kode Kemendagri
 const jabar2 = getProvinceByKemendagriCode('32')
-console.log(jabar2?.name) // "JAWA BARAT"
 
-// Cari desa/kelurahan by kode pos
-const villages = getVillagesByPostalCode('40263')
-console.log(villages.length) // jumlah desa dengan kode pos 40263
+// Cascading: Provinsi -> Kabupaten -> Kecamatan -> Desa
+const regencies = getRegenciesByBpsProvinceCode('32')  // 27 kabupaten/kota
+const districts = getDistrictsByBpsRegencyCode('3204')  // kecamatan di KAB. BANDUNG
+const villages = getVillagesByBpsDistrictCode('3204050') // desa di kec. NAGREG
+
+// Kode pos
+const desa = getVillagesByPostalCode('40263') // desa dengan kode pos 40263
 
 // Pencarian case-insensitive
 const results = searchByName('bandung')
@@ -159,238 +163,26 @@ import type { Province, Regency } from 'kode-wilayah-id/types'
 
 ## Contoh Penggunaan
 
-### React -- Cascading Address Picker
+Lihat folder [`examples/`](examples/) untuk contoh lengkap di berbagai framework dan runtime:
 
-```tsx
-import { useState } from 'react'
-import { getProvinces } from 'kode-wilayah-id/provinces'
-import { getRegenciesByBpsProvinceCode } from 'kode-wilayah-id/regencies'
-import { getDistrictsByBpsRegencyCode } from 'kode-wilayah-id/districts'
-import { getVillagesByBpsDistrictCode } from 'kode-wilayah-id/villages'
+| Framework | File | Fitur |
+|-----------|------|-------|
+| **Node.js** | [`node.ts`](examples/node.ts) | Basic usage — semua fungsi API |
+| **React** | [`react.tsx`](examples/react.tsx) | Cascading dropdown + search component |
+| **Next.js** | [`nextjs.tsx`](examples/nextjs.tsx) | API route + server component |
+| **Vue 3** | [`vue.vue`](examples/vue.vue) | Cascading dropdown (Composition API) |
+| **Nuxt 3** | [`nuxt.vue`](examples/nuxt.vue) | Server API + composable + page |
+| **Svelte 5** | [`svelte.svelte`](examples/svelte.svelte) | Cascading dropdown (runes) |
+| **SvelteKit** | [`sveltekit.ts`](examples/sveltekit.ts) | Server load + API endpoint |
+| **Angular** | [`angular.ts`](examples/angular.ts) | Service + component |
+| **Express** | [`express.ts`](examples/express.ts) | REST API lengkap |
+| **Hono** | [`hono.ts`](examples/hono.ts) | Lightweight REST API |
+| **Bun** | [`bun.ts`](examples/bun.ts) | Native Bun HTTP server |
+| **Deno** | [`deno.ts`](examples/deno.ts) | Native Deno server |
 
-export function AddressPicker() {
-  const [provinceCode, setProvinceCode] = useState('')
-  const [regencyCode, setRegencyCode] = useState('')
-  const [districtCode, setDistrictCode] = useState('')
-  const [villageCode, setVillageCode] = useState('')
-
-  const provinces = getProvinces()
-  const regencies = provinceCode ? getRegenciesByBpsProvinceCode(provinceCode) : []
-  const districts = regencyCode ? getDistrictsByBpsRegencyCode(regencyCode) : []
-  const villages = districtCode ? getVillagesByBpsDistrictCode(districtCode) : []
-
-  return (
-    <div>
-      <select value={provinceCode} onChange={e => {
-        setProvinceCode(e.target.value)
-        setRegencyCode('')
-        setDistrictCode('')
-        setVillageCode('')
-      }}>
-        <option value="">Pilih Provinsi</option>
-        {provinces.map(p => <option key={p.bps_code} value={p.bps_code}>{p.name}</option>)}
-      </select>
-
-      <select value={regencyCode} onChange={e => {
-        setRegencyCode(e.target.value)
-        setDistrictCode('')
-        setVillageCode('')
-      }} disabled={!provinceCode}>
-        <option value="">Pilih Kabupaten/Kota</option>
-        {regencies.map(r => <option key={r.bps_code} value={r.bps_code}>{r.name}</option>)}
-      </select>
-
-      <select value={districtCode} onChange={e => {
-        setDistrictCode(e.target.value)
-        setVillageCode('')
-      }} disabled={!regencyCode}>
-        <option value="">Pilih Kecamatan</option>
-        {districts.map(d => <option key={d.bps_code} value={d.bps_code}>{d.name}</option>)}
-      </select>
-
-      <select value={villageCode} onChange={e => setVillageCode(e.target.value)}
-        disabled={!districtCode}>
-        <option value="">Pilih Desa/Kelurahan</option>
-        {villages.map(v => <option key={v.bps_code} value={v.bps_code}>{v.name}</option>)}
-      </select>
-    </div>
-  )
-}
-```
-
-### Vue 3 -- Composition API
-
-```vue
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { getProvinces } from 'kode-wilayah-id/provinces'
-import { getRegenciesByBpsProvinceCode } from 'kode-wilayah-id/regencies'
-import { getDistrictsByBpsRegencyCode } from 'kode-wilayah-id/districts'
-import { getVillagesByBpsDistrictCode } from 'kode-wilayah-id/villages'
-
-const provinceCode = ref('')
-const regencyCode = ref('')
-const districtCode = ref('')
-const villageCode = ref('')
-
-const provinces = getProvinces()
-const regencies = computed(() =>
-  provinceCode.value ? getRegenciesByBpsProvinceCode(provinceCode.value) : []
-)
-const districts = computed(() =>
-  regencyCode.value ? getDistrictsByBpsRegencyCode(regencyCode.value) : []
-)
-const villages = computed(() =>
-  districtCode.value ? getVillagesByBpsDistrictCode(districtCode.value) : []
-)
-
-function onProvinceChange() {
-  regencyCode.value = ''
-  districtCode.value = ''
-  villageCode.value = ''
-}
-function onRegencyChange() {
-  districtCode.value = ''
-  villageCode.value = ''
-}
-function onDistrictChange() {
-  villageCode.value = ''
-}
-</script>
-
-<template>
-  <select v-model="provinceCode" @change="onProvinceChange">
-    <option value="">Pilih Provinsi</option>
-    <option v-for="p in provinces" :key="p.bps_code" :value="p.bps_code">{{ p.name }}</option>
-  </select>
-
-  <select v-model="regencyCode" @change="onRegencyChange" :disabled="!provinceCode">
-    <option value="">Pilih Kabupaten/Kota</option>
-    <option v-for="r in regencies" :key="r.bps_code" :value="r.bps_code">{{ r.name }}</option>
-  </select>
-
-  <select v-model="districtCode" @change="onDistrictChange" :disabled="!regencyCode">
-    <option value="">Pilih Kecamatan</option>
-    <option v-for="d in districts" :key="d.bps_code" :value="d.bps_code">{{ d.name }}</option>
-  </select>
-
-  <select v-model="villageCode" :disabled="!districtCode">
-    <option value="">Pilih Desa/Kelurahan</option>
-    <option v-for="v in villages" :key="v.bps_code" :value="v.bps_code">{{ v.name }}</option>
-  </select>
-</template>
-```
-
-### Svelte
-
-```svelte
-<script lang="ts">
-  import { getProvinces } from 'kode-wilayah-id/provinces'
-  import { getRegenciesByBpsProvinceCode } from 'kode-wilayah-id/regencies'
-  import { getDistrictsByBpsRegencyCode } from 'kode-wilayah-id/districts'
-  import { getVillagesByBpsDistrictCode } from 'kode-wilayah-id/villages'
-
-  let provinceCode = ''
-  let regencyCode = ''
-  let districtCode = ''
-  let villageCode = ''
-
-  const provinces = getProvinces()
-  $: regencies = provinceCode ? getRegenciesByBpsProvinceCode(provinceCode) : []
-  $: districts = regencyCode ? getDistrictsByBpsRegencyCode(regencyCode) : []
-  $: villages = districtCode ? getVillagesByBpsDistrictCode(districtCode) : []
-</script>
-
-<select bind:value={provinceCode} on:change={() => { regencyCode = ''; districtCode = ''; villageCode = '' }}>
-  <option value="">Pilih Provinsi</option>
-  {#each provinces as p}
-    <option value={p.bps_code}>{p.name}</option>
-  {/each}
-</select>
-
-<select bind:value={regencyCode} on:change={() => { districtCode = ''; villageCode = '' }} disabled={!provinceCode}>
-  <option value="">Pilih Kabupaten/Kota</option>
-  {#each regencies as r}
-    <option value={r.bps_code}>{r.name}</option>
-  {/each}
-</select>
-
-<select bind:value={districtCode} on:change={() => { villageCode = '' }} disabled={!regencyCode}>
-  <option value="">Pilih Kecamatan</option>
-  {#each districts as d}
-    <option value={d.bps_code}>{d.name}</option>
-  {/each}
-</select>
-
-<select bind:value={villageCode} disabled={!districtCode}>
-  <option value="">Pilih Desa/Kelurahan</option>
-  {#each villages as v}
-    <option value={v.bps_code}>{v.name}</option>
-  {/each}
-</select>
-```
-
-### Next.js -- Server Component
-
-```tsx
-// app/provinces/page.tsx
-import { getProvinces } from 'kode-wilayah-id/provinces'
-import { getRegenciesByBpsProvinceCode } from 'kode-wilayah-id/regencies'
-
-export default function ProvincesPage() {
-  const provinces = getProvinces()
-
-  return (
-    <div>
-      <h1>Daftar Provinsi Indonesia</h1>
-      <ul>
-        {provinces.map(p => (
-          <li key={p.bps_code}>
-            {p.name} ({getRegenciesByBpsProvinceCode(p.bps_code).length} kab/kota)
-            {p.kemendagri_code && ` [Kemendagri: ${p.kemendagri_code}]`}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-```
-
-### Node.js / Express
-
-```typescript
-import express from 'express'
-import {
-  getProvinces,
-  getProvinceByBpsCode,
-  getProvinceByKemendagriCode,
-  getVillagesByPostalCode,
-} from 'kode-wilayah-id'
-
-const app = express()
-
-app.get('/api/provinces', (req, res) => {
-  res.json({ status: 200, data: getProvinces(), meta: { total: getProvinces().length } })
-})
-
-app.get('/api/provinces/bps/:code', (req, res) => {
-  const province = getProvinceByBpsCode(req.params.code)
-  if (!province) return res.status(404).json({ status: 404, error: 'Not Found' })
-  res.json({ status: 200, data: province })
-})
-
-app.get('/api/provinces/kemendagri/:code', (req, res) => {
-  const province = getProvinceByKemendagriCode(req.params.code)
-  if (!province) return res.status(404).json({ status: 404, error: 'Not Found' })
-  res.json({ status: 200, data: province })
-})
-
-app.get('/api/villages/postal/:code', (req, res) => {
-  const villages = getVillagesByPostalCode(req.params.code)
-  res.json({ status: 200, data: villages, meta: { total: villages.length } })
-})
-
-app.listen(3000, () => console.log('Server running on port 3000'))
+```bash
+# Jalankan contoh Node.js
+npx tsx examples/node.ts
 ```
 
 ## Data
@@ -550,35 +342,14 @@ regencies.forEach(r => console.log(r.bps_code, r.bps_province_code))
 Kontribusi sangat diterima! Baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan lengkap.
 
 ```bash
-# Setup development
 git clone https://github.com/sumitroajiprabowo/kode-wilayah-id.git
 cd kode-wilayah-id
 npm install
-
-# Development workflow
 npm run lint          # Lint check
 npm run format:check  # Format check
 npm run typecheck     # TypeScript check
-npm run test:coverage # Test + 100% coverage
+npm run test:coverage # Test dengan coverage
 npm run build         # Build ESM + CJS
-```
-
-### Data Pipeline Scripts
-
-Scripts di `scripts/` adalah tool internal untuk memperbarui data (tidak di-publish ke npm):
-
-```bash
-# Scrape BPS bridging API (semua level)
-npx tsx scripts/scrape-bridging.ts
-
-# Scrape desa dengan parallel workers (lebih cepat)
-npx tsx scripts/scrape-desa-fast.ts
-
-# Parse Kemendagri kodepos SQL dump
-npx tsx scripts/parse-kodepos.ts
-
-# Merge semua data menjadi format v1.0
-npx tsx scripts/merge-data.ts
 ```
 
 ## Security
