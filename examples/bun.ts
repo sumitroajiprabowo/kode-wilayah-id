@@ -13,7 +13,14 @@
  *   GET /api/districts?regency=3101
  *   GET /api/villages?district=3101010
  *   GET /api/postal?code=10110
- *   GET /api/search?q=surabaya
+ *   GET /api/search?q=surabaya&level=regency&limit=5
+ *   GET /api/hierarchy/village?code=3204101005
+ *   GET /api/hierarchy/district?code=3204101
+ *   GET /api/hierarchy/regency?code=3204
+ *   GET /api/tree/province?code=31
+ *   GET /api/tree/regency?code=3171
+ *   GET /api/tree/district?code=3204101
+ *   GET /api/stats
  */
 
 import {
@@ -24,6 +31,15 @@ import {
   getVillagesByBpsDistrictCode,
   getVillagesByPostalCode,
   searchByName,
+  // v1.1.0
+  getVillageWithParents,
+  getDistrictWithParents,
+  getRegencyWithParent,
+  getProvinceTree,
+  getRegencyTree,
+  getDistrictTree,
+  getSummary,
+  type SearchOptions,
 } from "kode-wilayah-id";
 
 const PORT = Number(process.env.PORT ?? 3000);
@@ -96,7 +112,79 @@ Bun.serve({
       const q = params.get("q");
       if (!q)
         return Response.json({ error: "q param required" }, { status: 400 });
-      return Response.json(searchByName(q));
+      const options: SearchOptions = {};
+      const level = params.get("level");
+      const limit = params.get("limit");
+      if (level) options.level = level as SearchOptions["level"];
+      if (limit) options.limit = Number(limit);
+      return Response.json(searchByName(q, options));
+    }
+
+    // Hierarchy — reverse lookup
+    if (path === "/api/hierarchy/village") {
+      const code = params.get("code");
+      if (!code)
+        return Response.json({ error: "code param required" }, { status: 400 });
+      const result = getVillageWithParents(code);
+      if (!result)
+        return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json(result);
+    }
+
+    if (path === "/api/hierarchy/district") {
+      const code = params.get("code");
+      if (!code)
+        return Response.json({ error: "code param required" }, { status: 400 });
+      const result = getDistrictWithParents(code);
+      if (!result)
+        return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json(result);
+    }
+
+    if (path === "/api/hierarchy/regency") {
+      const code = params.get("code");
+      if (!code)
+        return Response.json({ error: "code param required" }, { status: 400 });
+      const result = getRegencyWithParent(code);
+      if (!result)
+        return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json(result);
+    }
+
+    // Hierarchy — drill-down tree
+    if (path === "/api/tree/province") {
+      const code = params.get("code");
+      if (!code)
+        return Response.json({ error: "code param required" }, { status: 400 });
+      const tree = getProvinceTree(code);
+      if (!tree)
+        return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json(tree);
+    }
+
+    if (path === "/api/tree/regency") {
+      const code = params.get("code");
+      if (!code)
+        return Response.json({ error: "code param required" }, { status: 400 });
+      const tree = getRegencyTree(code);
+      if (!tree)
+        return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json(tree);
+    }
+
+    if (path === "/api/tree/district") {
+      const code = params.get("code");
+      if (!code)
+        return Response.json({ error: "code param required" }, { status: 400 });
+      const tree = getDistrictTree(code);
+      if (!tree)
+        return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json(tree);
+    }
+
+    // Stats
+    if (path === "/api/stats") {
+      return Response.json(getSummary());
     }
 
     return Response.json({ error: "Not found" }, { status: 404 });
