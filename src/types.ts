@@ -1,28 +1,36 @@
-/** Provinsi — id 2 digit (contoh: "32") */
+/** Provinsi */
 export interface Province {
-	id: string;
+	bps_code: string;
+	kemendagri_code: string | null;
 	name: string;
 }
 
-/** Kabupaten/Kota — id 4 digit (contoh: "3204") */
+/** Kabupaten/Kota */
 export interface Regency {
-	id: string;
-	province_id: string;
+	bps_code: string;
+	kemendagri_code: string | null;
+	bps_province_code: string;
+	kemendagri_province_code: string | null;
 	name: string;
 }
 
-/** Kecamatan — id 7 digit (contoh: "1101010") */
+/** Kecamatan */
 export interface District {
-	id: string;
-	regency_id: string;
+	bps_code: string;
+	kemendagri_code: string | null;
+	bps_regency_code: string;
+	kemendagri_regency_code: string | null;
 	name: string;
 }
 
-/** Desa/Kelurahan — id 10 digit (contoh: "1101010001") */
+/** Desa/Kelurahan */
 export interface Village {
-	id: string;
-	district_id: string;
+	bps_code: string;
+	kemendagri_code: string | null;
+	bps_district_code: string;
+	kemendagri_district_code: string | null;
 	name: string;
+	postal_code: string | null;
 }
 
 /** Hasil pencarian — discriminated union by level */
