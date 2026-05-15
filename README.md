@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/kode-wilayah-id.svg)](https://www.npmjs.com/package/kode-wilayah-id)
 [![CI](https://github.com/sumitroajiprabowo/kode-wilayah-id/actions/workflows/ci.yml/badge.svg)](https://github.com/sumitroajiprabowo/kode-wilayah-id/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/sumitroajiprabowo/kode-wilayah-id)
+[![Coverage](https://codecov.io/gh/sumitroajiprabowo/kode-wilayah-id/branch/main/graph/badge.svg)](https://codecov.io/gh/sumitroajiprabowo/kode-wilayah-id)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-green.svg)](https://nodejs.org/)
