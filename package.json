@@ -4,13 +4,14 @@
   "description": "Data kode wilayah Indonesia lengkap (provinsi, kabupaten/kota, kecamatan, desa/kelurahan) dari BPS — TypeScript, tree-shakeable, zero dependencies",
   "type": "module",
   "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       },
       "require": {
         "types": "./dist/index.d.cts",
@@ -19,8 +20,8 @@
     },
     "./provinces": {
       "import": {
-        "types": "./dist/provinces.d.mts",
-        "default": "./dist/provinces.mjs"
+        "types": "./dist/provinces.d.ts",
+        "default": "./dist/provinces.js"
       },
       "require": {
         "types": "./dist/provinces.d.cts",
@@ -29,8 +30,8 @@
     },
     "./regencies": {
       "import": {
-        "types": "./dist/regencies.d.mts",
-        "default": "./dist/regencies.mjs"
+        "types": "./dist/regencies.d.ts",
+        "default": "./dist/regencies.js"
       },
       "require": {
         "types": "./dist/regencies.d.cts",
@@ -39,8 +40,8 @@
     },
     "./districts": {
       "import": {
-        "types": "./dist/districts.d.mts",
-        "default": "./dist/districts.mjs"
+        "types": "./dist/districts.d.ts",
+        "default": "./dist/districts.js"
       },
       "require": {
         "types": "./dist/districts.d.cts",
@@ -49,8 +50,8 @@
     },
     "./villages": {
       "import": {
-        "types": "./dist/villages.d.mts",
-        "default": "./dist/villages.mjs"
+        "types": "./dist/villages.d.ts",
+        "default": "./dist/villages.js"
       },
       "require": {
         "types": "./dist/villages.d.cts",
@@ -59,8 +60,8 @@
     },
     "./search": {
       "import": {
-        "types": "./dist/search.d.mts",
-        "default": "./dist/search.mjs"
+        "types": "./dist/search.d.ts",
+        "default": "./dist/search.js"
       },
       "require": {
         "types": "./dist/search.d.cts",
@@ -69,7 +70,7 @@
     },
     "./types": {
       "import": {
-        "types": "./dist/types.d.mts"
+        "types": "./dist/types.d.ts"
       },
       "require": {
         "types": "./dist/types.d.cts"
@@ -77,8 +78,7 @@
     }
   },
   "files": [
-    "dist",
-    "data"
+    "dist"
   ],
   "scripts": {
     "build": "tsup",
