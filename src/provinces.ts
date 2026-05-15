@@ -7,6 +7,10 @@ export function getProvinces(): Province[] {
 	return [...provinces];
 }
 
-export function getProvinceById(id: string): Province | undefined {
-	return provinces.find((p) => p.id === id);
+export function getProvinceByBpsCode(code: string): Province | undefined {
+	return provinces.find((p) => p.bps_code === code);
+}
+
+export function getProvinceByKemendagriCode(code: string): Province | undefined {
+	return provinces.find((p) => p.kemendagri_code === code);
 }
