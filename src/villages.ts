@@ -7,10 +7,22 @@ export function getVillages(): Village[] {
 	return [...villages];
 }
 
-export function getVillagesByDistrictId(districtId: string): Village[] {
-	return villages.filter((v) => v.district_id === districtId);
+export function getVillagesByBpsDistrictCode(code: string): Village[] {
+	return villages.filter((v) => v.bps_district_code === code);
 }
 
-export function getVillageById(id: string): Village | undefined {
-	return villages.find((v) => v.id === id);
+export function getVillagesByKemendagriDistrictCode(code: string): Village[] {
+	return villages.filter((v) => v.kemendagri_district_code === code);
+}
+
+export function getVillageByBpsCode(code: string): Village | undefined {
+	return villages.find((v) => v.bps_code === code);
+}
+
+export function getVillageByKemendagriCode(code: string): Village | undefined {
+	return villages.find((v) => v.kemendagri_code === code);
+}
+
+export function getVillagesByPostalCode(code: string): Village[] {
+	return villages.filter((v) => v.postal_code === code);
 }
