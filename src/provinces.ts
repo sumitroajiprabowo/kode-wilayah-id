@@ -1,5 +1,5 @@
-import type { Province } from "./types";
 import provincesData from "../data/provinces.json";
+import type { Province } from "./types";
 
 const provinces: Province[] = provincesData as Province[];
 

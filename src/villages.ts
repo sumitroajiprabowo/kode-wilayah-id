@@ -1,5 +1,5 @@
-import type { Village } from "./types";
 import villagesData from "../data/villages.json";
+import type { Village } from "./types";
 
 const villages: Village[] = villagesData as Village[];
 

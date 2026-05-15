@@ -1,5 +1,5 @@
-import type { Regency } from "./types";
 import regenciesData from "../data/regencies.json";
+import type { Regency } from "./types";
 
 const regencies: Regency[] = regenciesData as Regency[];
 

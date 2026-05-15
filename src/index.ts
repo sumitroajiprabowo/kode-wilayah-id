@@ -1,4 +1,8 @@
-export type { District, Province, Regency, SearchResult, Village } from "./types";
+export {
+	getDistrictById,
+	getDistricts,
+	getDistrictsByRegencyId,
+} from "./districts";
 
 export { getProvinceById, getProvinces } from "./provinces";
 export {
@@ -6,14 +10,10 @@ export {
 	getRegenciesByProvinceId,
 	getRegencyById,
 } from "./regencies";
-export {
-	getDistrictById,
-	getDistricts,
-	getDistrictsByRegencyId,
-} from "./districts";
+export { searchByName } from "./search";
+export type { District, Province, Regency, SearchResult, Village } from "./types";
 export {
 	getVillageById,
 	getVillages,
 	getVillagesByDistrictId,
 } from "./villages";
-export { searchByName } from "./search";

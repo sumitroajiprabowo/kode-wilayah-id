@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	getRegencies,
-	getRegenciesByProvinceId,
-	getRegencyById,
-} from "../src/regencies";
+import { getRegencies, getRegenciesByProvinceId, getRegencyById } from "../src/regencies";
 
 describe("getRegencies", () => {
 	it("returns 514 regencies", () => {

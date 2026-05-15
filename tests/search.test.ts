@@ -2,12 +2,17 @@ import { describe, expect, it } from "vitest";
 import { searchByName } from "../src/search";
 
 describe("searchByName", () => {
+	it("finds province-level results", () => {
+		const results = searchByName("JAWA BARAT");
+		const provinces = results.filter((r) => r.level === "province");
+		expect(provinces.length).toBeGreaterThanOrEqual(1);
+		expect(provinces[0].data.name).toBe("JAWA BARAT");
+	});
+
 	it('finds results for "bandung" including regencies', () => {
 		const results = searchByName("bandung");
 		expect(results.length).toBeGreaterThanOrEqual(3);
-		const regencyNames = results
-			.filter((r) => r.level === "regency")
-			.map((r) => r.data.name);
+		const regencyNames = results.filter((r) => r.level === "regency").map((r) => r.data.name);
 		expect(regencyNames).toContain("KAB. BANDUNG");
 		expect(regencyNames).toContain("KAB. BANDUNG BARAT");
 		expect(regencyNames).toContain("KOTA BANDUNG");

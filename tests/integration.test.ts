@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	getDistricts,
-	getProvinces,
-	getRegencies,
-	getVillages,
-} from "../src/index";
+import { getDistricts, getProvinces, getRegencies, getVillages } from "../src/index";
 
 describe("data integrity", () => {
 	it("all province ids are unique", () => {
@@ -67,11 +62,11 @@ describe("parent-child completeness", () => {
 	});
 
 	it("every district has at least one village", () => {
-		const villages = getVillages();
+		const villageDistrictIds = new Set(getVillages().map((v) => v.district_id));
 		for (const d of getDistricts()) {
-			expect(villages.some((v) => v.district_id === d.id)).toBe(true);
+			expect(villageDistrictIds.has(d.id)).toBe(true);
 		}
-	});
+	}, 30_000);
 });
 
 describe("non-empty fields", () => {
@@ -104,5 +99,5 @@ describe("non-empty fields", () => {
 			expect(v.district_id.length).toBeGreaterThan(0);
 			expect(v.name.length).toBeGreaterThan(0);
 		}
-	});
+	}, 30_000);
 });

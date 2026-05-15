@@ -1,9 +1,8 @@
-import type { SearchResult } from "./types";
-import type { District, Province, Regency, Village } from "./types";
+import districtsData from "../data/districts.json";
 import provincesData from "../data/provinces.json";
 import regenciesData from "../data/regencies.json";
-import districtsData from "../data/districts.json";
 import villagesData from "../data/villages.json";
+import type { District, Province, Regency, SearchResult, Village } from "./types";
 
 const provinces: Province[] = provincesData as Province[];
 const regencies: Regency[] = regenciesData as Regency[];

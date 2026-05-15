@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	getVillageById,
-	getVillages,
-	getVillagesByDistrictId,
-} from "../src/villages";
+import { getVillageById, getVillages, getVillagesByDistrictId } from "../src/villages";
 
 describe("getVillages", () => {
 	it("returns 84270 villages", () => {

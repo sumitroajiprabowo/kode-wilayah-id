@@ -1,5 +1,5 @@
-import type { District } from "./types";
 import districtsData from "../data/districts.json";
+import type { District } from "./types";
 
 const districts: District[] = districtsData as District[];
 
