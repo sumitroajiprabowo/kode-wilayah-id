@@ -53,6 +53,12 @@ import {
   getVillagesByBpsDistrictCode as getVillagesApi,
   getVillagesByPostalCode,
   searchByName,
+  // v1.1.0
+  getVillageWithParents,
+  getDistrictWithParents,
+  getRegencyWithParent,
+  getSummary,
+  type SearchOptions,
 } from "kode-wilayah-id";
 
 export const GET: RequestHandler = ({ url }) => {
@@ -63,6 +69,23 @@ export const GET: RequestHandler = ({ url }) => {
 
   if (search) return json(searchByName(search));
   if (postalCode) return json(getVillagesByPostalCode(postalCode));
+
+  // Hierarchy — reverse lookup (v1.1.0)
+  const hierarchy = url.searchParams.get("hierarchy");
+  const code = url.searchParams.get("code");
+  if (hierarchy && code) {
+    switch (hierarchy) {
+      case "village":
+        return json(getVillageWithParents(code) ?? { error: "Not found" });
+      case "district":
+        return json(getDistrictWithParents(code) ?? { error: "Not found" });
+      case "regency":
+        return json(getRegencyWithParent(code) ?? { error: "Not found" });
+    }
+  }
+
+  // Stats (v1.1.0)
+  if (level === "summary") return json(getSummary());
 
   switch (level) {
     case "provinces":
