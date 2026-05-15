@@ -127,7 +127,30 @@ const results = searchByName('bandung')
 | Function | Parameter | Return | Keterangan |
 |----------|-----------|--------|------------|
 | `getVillagesByPostalCode(code)` | `string` | `Village[]` | Desa/kelurahan by kode pos |
-| `searchByName(query)` | `string` | `SearchResult[]` | Pencarian case-insensitive |
+| `searchByName(query, options?)` | `string, SearchOptions?` | `SearchResult[]` | Pencarian case-insensitive dengan opsi filter level dan limit |
+
+### Fungsi Hierarki (Reverse Lookup & Drill-down)
+
+| Function | Parameter | Return | Keterangan |
+|----------|-----------|--------|------------|
+| `getVillageWithParents(code)` | `string` | `VillageHierarchy \| undefined` | Dari desa → kecamatan → kabupaten → provinsi |
+| `getDistrictWithParents(code)` | `string` | `DistrictHierarchy \| undefined` | Dari kecamatan → kabupaten → provinsi |
+| `getRegencyWithParent(code)` | `string` | `RegencyHierarchy \| undefined` | Dari kabupaten → provinsi |
+| `getProvinceTree(code)` | `string` | `ProvinceTree \| undefined` | Tree provinsi → kabupaten → kecamatan → desa |
+| `getRegencyTree(code)` | `string` | `RegencyNode \| undefined` | Tree kabupaten → kecamatan → desa |
+| `getDistrictTree(code)` | `string` | `DistrictNode \| undefined` | Tree kecamatan → desa |
+
+### Fungsi Statistik
+
+| Function | Parameter | Return | Keterangan |
+|----------|-----------|--------|------------|
+| `getRegencyCountByProvince(code)` | `string` | `number` | Jumlah kabupaten/kota di provinsi |
+| `getDistrictCountByRegency(code)` | `string` | `number` | Jumlah kecamatan di kabupaten |
+| `getVillageCountByDistrict(code)` | `string` | `number` | Jumlah desa di kecamatan |
+| `getDistrictCountByProvince(code)` | `string` | `number` | Jumlah kecamatan di provinsi |
+| `getVillageCountByRegency(code)` | `string` | `number` | Jumlah desa di kabupaten |
+| `getVillageCountByProvince(code)` | `string` | `number` | Jumlah desa di provinsi |
+| `getSummary()` | -- | `object` | Ringkasan total semua level |
 
 ## Tree-shaking / Sub-path Imports
 
@@ -146,6 +169,12 @@ import { getDistrictsByBpsRegencyCode } from 'kode-wilayah-id/districts'
 // Hanya desa (~12 MB) -- hati-hati bundle size!
 import { getVillagesByBpsDistrictCode } from 'kode-wilayah-id/villages'
 
+// Hierarchy -- reverse lookup & drill-down tree (~13 MB, loads all)
+import { getVillageWithParents, getProvinceTree } from 'kode-wilayah-id/hierarchy'
+
+// Stats -- penghitungan wilayah (~13 MB, loads all)
+import { getSummary, getRegencyCountByProvince } from 'kode-wilayah-id/stats'
+
 // Types only (zero runtime)
 import type { Province, Regency } from 'kode-wilayah-id/types'
 ```
@@ -158,6 +187,8 @@ import type { Province, Regency } from 'kode-wilayah-id/types'
 | `kode-wilayah-id/regencies` | ~55 KB |
 | `kode-wilayah-id/districts` | ~750 KB |
 | `kode-wilayah-id/villages` | ~12 MB |
+| `kode-wilayah-id/hierarchy` | ~13 MB (loads all) |
+| `kode-wilayah-id/stats` | ~13 MB (loads all) |
 | `kode-wilayah-id/search` | ~13 MB (loads all) |
 | `kode-wilayah-id` (full) | ~13 MB |
 
