@@ -7,3 +7,6 @@ coverage/
 # Data pipeline intermediate files
 scripts/bridging_*.json
 scripts/kodepos_map.json
+
+# Superpowers docs (development only)
+docs/superpowers/
