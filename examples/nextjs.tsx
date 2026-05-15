@@ -22,6 +22,13 @@ import {
   getVillagesByBpsDistrictCode,
   getVillagesByPostalCode,
   searchByName,
+  // v1.1.0
+  getVillageWithParents,
+  getDistrictWithParents,
+  getRegencyWithParent,
+  getProvinceTree,
+  getSummary,
+  type SearchOptions,
 } from "kode-wilayah-id";
 
 export function GET(request: NextRequest) {
@@ -31,14 +38,40 @@ export function GET(request: NextRequest) {
   const search = searchParams.get("q");
   const postalCode = searchParams.get("postal_code");
 
-  // Search by name
+  // Search by name (v1.1.0: with options)
   if (search) {
-    return NextResponse.json(searchByName(search));
+    const options: SearchOptions = {};
+    const levelFilter = searchParams.get("search_level");
+    const limitParam = searchParams.get("limit");
+    if (levelFilter) options.level = levelFilter as SearchOptions["level"];
+    if (limitParam) options.limit = Number(limitParam);
+    return NextResponse.json(searchByName(search, options));
   }
 
   // Search by postal code
   if (postalCode) {
     return NextResponse.json(getVillagesByPostalCode(postalCode));
+  }
+
+  // Hierarchy — reverse lookup (v1.1.0)
+  const hierarchy = searchParams.get("hierarchy");
+  const hierarchyCode = searchParams.get("code");
+  if (hierarchy && hierarchyCode) {
+    switch (hierarchy) {
+      case "village":
+        return NextResponse.json(getVillageWithParents(hierarchyCode) ?? { error: "Not found" });
+      case "district":
+        return NextResponse.json(getDistrictWithParents(hierarchyCode) ?? { error: "Not found" });
+      case "regency":
+        return NextResponse.json(getRegencyWithParent(hierarchyCode) ?? { error: "Not found" });
+      case "province-tree":
+        return NextResponse.json(getProvinceTree(hierarchyCode) ?? { error: "Not found" });
+    }
+  }
+
+  // Stats (v1.1.0)
+  if (level === "summary") {
+    return NextResponse.json(getSummary());
   }
 
   // Cascading data
@@ -70,6 +103,8 @@ import {
   getProvinces as getProvincesServer,
   getProvinceByBpsCode,
   getRegenciesByBpsProvinceCode as getRegenciesServer,
+  // v1.1.0
+  getSummary as getSummaryServer,
 } from "kode-wilayah-id";
 
 /** Server Component — data fetched at build/request time */
@@ -79,11 +114,18 @@ export default function WilayahPage() {
   const jakartaRegencies = jakarta
     ? getRegenciesServer(jakarta.bps_code)
     : [];
+  const summary = getSummaryServer();
 
   return (
     <main>
       <h1>Wilayah Indonesia</h1>
       <p>Total provinsi: {provinces.length}</p>
+
+      {/* Stats (v1.1.0) */}
+      <section>
+        <h2>Statistik</h2>
+        <p>Provinsi: {summary.provinces} | Kabupaten/Kota: {summary.regencies} | Kecamatan: {summary.districts} | Desa: {summary.villages}</p>
+      </section>
 
       {jakarta && (
         <section>
