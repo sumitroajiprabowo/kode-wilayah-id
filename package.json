@@ -1,6 +1,6 @@
 {
   "name": "kode-wilayah-id",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Data kode wilayah Indonesia lengkap dengan dual kode BPS & Kemendagri + kode pos — TypeScript, tree-shakeable, zero dependencies",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -66,6 +66,26 @@
       "require": {
         "types": "./dist/search.d.cts",
         "default": "./dist/search.cjs"
+      }
+    },
+    "./hierarchy": {
+      "import": {
+        "types": "./dist/hierarchy.d.ts",
+        "default": "./dist/hierarchy.js"
+      },
+      "require": {
+        "types": "./dist/hierarchy.d.cts",
+        "default": "./dist/hierarchy.cjs"
+      }
+    },
+    "./stats": {
+      "import": {
+        "types": "./dist/stats.d.ts",
+        "default": "./dist/stats.js"
+      },
+      "require": {
+        "types": "./dist/stats.d.cts",
+        "default": "./dist/stats.cjs"
       }
     },
     "./types": {
