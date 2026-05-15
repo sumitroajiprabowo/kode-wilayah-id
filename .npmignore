@@ -4,6 +4,7 @@ tests/
 data/
 scripts/
 docs/
+examples/
 
 # Config
 tsconfig.json
