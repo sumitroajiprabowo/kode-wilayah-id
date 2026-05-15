@@ -9,7 +9,7 @@
  *   <WilayahDropdown onChange={(v) => console.log(v)} />
  */
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   getProvinces,
   getRegenciesByBpsProvinceCode,
@@ -29,16 +29,19 @@ export function WilayahDropdown() {
   const [district, setDistrict] = useState<District | null>(null);
   const [village, setVillage] = useState<Village | null>(null);
 
-  const provinces = getProvinces();
-  const regencies = province
-    ? getRegenciesByBpsProvinceCode(province.bps_code)
-    : [];
-  const districts = regency
-    ? getDistrictsByBpsRegencyCode(regency.bps_code)
-    : [];
-  const villages = district
-    ? getVillagesByBpsDistrictCode(district.bps_code)
-    : [];
+  const provinces = useMemo(() => getProvinces(), []);
+  const regencies = useMemo(
+    () => (province ? getRegenciesByBpsProvinceCode(province.bps_code) : []),
+    [province],
+  );
+  const districts = useMemo(
+    () => (regency ? getDistrictsByBpsRegencyCode(regency.bps_code) : []),
+    [regency],
+  );
+  const villages = useMemo(
+    () => (district ? getVillagesByBpsDistrictCode(district.bps_code) : []),
+    [district],
+  );
 
   return (
     <div>
