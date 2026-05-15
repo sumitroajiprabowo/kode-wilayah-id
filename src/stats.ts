@@ -4,6 +4,10 @@
  * Fungsi-fungsi di sini berguna untuk dashboard, info page, atau
  * validasi data — menghitung jumlah wilayah di berbagai level.
  *
+ * Secara internal, modul ini pakai lazy-initialized `Map` untuk group-by O(1),
+ * bukan filter linear. Map dibuat saat pertama kali dibutuhkan, lalu di-cache
+ * supaya panggilan berikutnya instan.
+ *
  * @example
  * ```typescript
  * import {
@@ -35,6 +39,65 @@ const regencies: Regency[] = regenciesData as Regency[];
 const districts: District[] = districtsData as District[];
 const villages: Village[] = villagesData as Village[];
 
+// ---------------------------------------------------------------------------
+// Lazy-initialized index Maps — dibuat sekali saat pertama kali dipanggil
+// ---------------------------------------------------------------------------
+
+/** Index kode BPS provinsi → Regency[] */
+let regenciesByProvince: Map<string, Regency[]> | null = null;
+function getRegenciesByProvince(): Map<string, Regency[]> {
+	if (!regenciesByProvince) {
+		regenciesByProvince = new Map();
+		for (const r of regencies) {
+			const arr = regenciesByProvince.get(r.bps_province_code);
+			if (arr) {
+				arr.push(r);
+			} else {
+				regenciesByProvince.set(r.bps_province_code, [r]);
+			}
+		}
+	}
+	return regenciesByProvince;
+}
+
+/** Index kode BPS kabupaten → District[] */
+let districtsByRegency: Map<string, District[]> | null = null;
+function getDistrictsByRegency(): Map<string, District[]> {
+	if (!districtsByRegency) {
+		districtsByRegency = new Map();
+		for (const d of districts) {
+			const arr = districtsByRegency.get(d.bps_regency_code);
+			if (arr) {
+				arr.push(d);
+			} else {
+				districtsByRegency.set(d.bps_regency_code, [d]);
+			}
+		}
+	}
+	return districtsByRegency;
+}
+
+/** Index kode BPS kecamatan → Village[] */
+let villagesByDistrict: Map<string, Village[]> | null = null;
+function getVillagesByDistrict(): Map<string, Village[]> {
+	if (!villagesByDistrict) {
+		villagesByDistrict = new Map();
+		for (const v of villages) {
+			const arr = villagesByDistrict.get(v.bps_district_code);
+			if (arr) {
+				arr.push(v);
+			} else {
+				villagesByDistrict.set(v.bps_district_code, [v]);
+			}
+		}
+	}
+	return villagesByDistrict;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
 /**
  * Hitung jumlah kabupaten/kota dalam satu provinsi.
  *
@@ -48,7 +111,7 @@ const villages: Village[] = villagesData as Village[];
  * ```
  */
 export function getRegencyCountByProvince(bpsProvinceCode: string): number {
-	return regencies.filter((r) => r.bps_province_code === bpsProvinceCode).length;
+	return (getRegenciesByProvince().get(bpsProvinceCode) ?? []).length;
 }
 
 /**
@@ -63,7 +126,7 @@ export function getRegencyCountByProvince(bpsProvinceCode: string): number {
  * ```
  */
 export function getDistrictCountByRegency(bpsRegencyCode: string): number {
-	return districts.filter((d) => d.bps_regency_code === bpsRegencyCode).length;
+	return (getDistrictsByRegency().get(bpsRegencyCode) ?? []).length;
 }
 
 /**
@@ -78,7 +141,7 @@ export function getDistrictCountByRegency(bpsRegencyCode: string): number {
  * ```
  */
 export function getVillageCountByDistrict(bpsDistrictCode: string): number {
-	return villages.filter((v) => v.bps_district_code === bpsDistrictCode).length;
+	return (getVillagesByDistrict().get(bpsDistrictCode) ?? []).length;
 }
 
 /**
@@ -93,10 +156,16 @@ export function getVillageCountByDistrict(bpsDistrictCode: string): number {
  * ```
  */
 export function getDistrictCountByProvince(bpsProvinceCode: string): number {
-	const regencyCodes = new Set(
-		regencies.filter((r) => r.bps_province_code === bpsProvinceCode).map((r) => r.bps_code),
-	);
-	return districts.filter((d) => regencyCodes.has(d.bps_regency_code)).length;
+	const provRegencies = getRegenciesByProvince().get(bpsProvinceCode);
+	if (!provRegencies) return 0;
+
+	const distIdx = getDistrictsByRegency();
+	let count = 0;
+	for (const r of provRegencies) {
+		/* v8 ignore next -- valid regency selalu punya districts di data */
+		count += (distIdx.get(r.bps_code) ?? []).length;
+	}
+	return count;
 }
 
 /**
@@ -111,10 +180,16 @@ export function getDistrictCountByProvince(bpsProvinceCode: string): number {
  * ```
  */
 export function getVillageCountByRegency(bpsRegencyCode: string): number {
-	const districtCodes = new Set(
-		districts.filter((d) => d.bps_regency_code === bpsRegencyCode).map((d) => d.bps_code),
-	);
-	return villages.filter((v) => districtCodes.has(v.bps_district_code)).length;
+	const regDistricts = getDistrictsByRegency().get(bpsRegencyCode);
+	if (!regDistricts) return 0;
+
+	const villIdx = getVillagesByDistrict();
+	let count = 0;
+	for (const d of regDistricts) {
+		/* v8 ignore next -- valid district selalu punya villages di data */
+		count += (villIdx.get(d.bps_code) ?? []).length;
+	}
+	return count;
 }
 
 /**
@@ -129,13 +204,21 @@ export function getVillageCountByRegency(bpsRegencyCode: string): number {
  * ```
  */
 export function getVillageCountByProvince(bpsProvinceCode: string): number {
-	const regencyCodes = new Set(
-		regencies.filter((r) => r.bps_province_code === bpsProvinceCode).map((r) => r.bps_code),
-	);
-	const districtCodes = new Set(
-		districts.filter((d) => regencyCodes.has(d.bps_regency_code)).map((d) => d.bps_code),
-	);
-	return villages.filter((v) => districtCodes.has(v.bps_district_code)).length;
+	const provRegencies = getRegenciesByProvince().get(bpsProvinceCode);
+	if (!provRegencies) return 0;
+
+	const distIdx = getDistrictsByRegency();
+	const villIdx = getVillagesByDistrict();
+	let count = 0;
+	for (const r of provRegencies) {
+		/* v8 ignore next -- valid regency selalu punya districts di data */
+		const regDistricts = distIdx.get(r.bps_code) ?? [];
+		for (const d of regDistricts) {
+			/* v8 ignore next -- valid district selalu punya villages di data */
+			count += (villIdx.get(d.bps_code) ?? []).length;
+		}
+	}
+	return count;
 }
 
 /**
