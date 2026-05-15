@@ -16,10 +16,14 @@ import {
   getDistrictsByBpsRegencyCode,
   getVillagesByBpsDistrictCode,
   searchByName,
+  // v1.1.0
+  getVillageWithParents,
+  getSummary,
   type Province,
   type Regency,
   type District,
   type Village,
+  type SearchOptions,
 } from "kode-wilayah-id";
 
 /** Cascading Dropdown — Provinsi → Kabupaten → Kecamatan → Desa */
@@ -120,21 +124,40 @@ export function WilayahDropdown() {
         ))}
       </select>
 
-      {/* Hasil */}
+      {/* Hasil + Hierarchy */}
       {village && (
         <div style={{ marginTop: 16 }}>
           <h3>Wilayah Terpilih</h3>
           <pre>{JSON.stringify(village, null, 2)}</pre>
+
+          {/* Reverse lookup — dari desa, dapat info lengkap sampai provinsi */}
+          {(() => {
+            const hierarchy = getVillageWithParents(village.bps_code);
+            if (!hierarchy) return null;
+            return (
+              <div>
+                <h4>Hierarchy (Reverse Lookup)</h4>
+                <p>Kecamatan: {hierarchy.district.name}</p>
+                <p>Kabupaten: {hierarchy.regency.name}</p>
+                <p>Provinsi: {hierarchy.province.name}</p>
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
   );
 }
 
-/** Search Component */
+/** Search Component — with search options (v1.1.0) */
 export function WilayahSearch() {
   const [query, setQuery] = useState("");
-  const results = query.length >= 3 ? searchByName(query) : [];
+  const [level, setLevel] = useState<SearchOptions["level"]>(undefined);
+
+  // Pakai limit untuk autocomplete — hemat performa
+  const results = query.length >= 3
+    ? searchByName(query, { level, limit: 20 })
+    : [];
 
   return (
     <div>
@@ -145,14 +168,45 @@ export function WilayahSearch() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+      <select
+        value={level ?? ""}
+        onChange={(e) =>
+          setLevel((e.target.value || undefined) as SearchOptions["level"])
+        }
+      >
+        <option value="">Semua level</option>
+        <option value="province">Provinsi</option>
+        <option value="regency">Kabupaten/Kota</option>
+        <option value="district">Kecamatan</option>
+        <option value="village">Desa/Kelurahan</option>
+      </select>
       <ul>
-        {results.slice(0, 20).map((r) => (
+        {results.map((r) => (
           <li key={`${r.level}-${r.data.bps_code}`}>
             <strong>[{r.level}]</strong> {r.data.name}
             <small> — BPS: {r.data.bps_code}</small>
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+/** Stats Summary Component (v1.1.0) */
+export function WilayahStats() {
+  const summary = useMemo(() => getSummary(), []);
+
+  return (
+    <div>
+      <h2>Statistik Wilayah Indonesia</h2>
+      <table>
+        <tbody>
+          <tr><td>Provinsi</td><td>{summary.provinces}</td></tr>
+          <tr><td>Kabupaten/Kota</td><td>{summary.regencies}</td></tr>
+          <tr><td>Kecamatan</td><td>{summary.districts}</td></tr>
+          <tr><td>Desa/Kelurahan</td><td>{summary.villages}</td></tr>
+        </tbody>
+      </table>
     </div>
   );
 }
