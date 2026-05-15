@@ -1,29 +1,5 @@
 /**
- * Modul pencarian wilayah Indonesia berdasarkan nama.
- *
- * Menyediakan fungsi pencarian lintas level (provinsi, kabupaten/kota,
- * kecamatan, desa/kelurahan) secara sekaligus. Pencarian bersifat
- * case-insensitive dan menggunakan substring matching.
- *
- * Hasil pencarian dikembalikan sebagai discriminated union {@link SearchResult}
- * sehingga konsumer dapat menentukan tipe data berdasarkan properti `level`.
- *
- * @example
- * ```typescript
- * import { searchByName } from "kode-wilayah-id/search";
- *
- * const hasil = searchByName("bandung");
- * for (const r of hasil) {
- *   console.log(`[${r.level}] ${r.data.name}`);
- *   // [province] ...  (jika ada)
- *   // [regency]  KAB. BANDUNG
- *   // [regency]  KAB. BANDUNG BARAT
- *   // [regency]  KOTA BANDUNG
- *   // [district] BANDUNG
- *   // ...
- * }
- * ```
- *
+ * Pencarian wilayah berdasarkan nama (case-insensitive, substring match).
  * @module search
  */
 
@@ -39,38 +15,10 @@ const districts: District[] = districtsData as District[];
 const villages: Village[] = villagesData as Village[];
 
 /**
- * Mencari wilayah Indonesia berdasarkan nama di semua level administratif.
+ * Cari wilayah di semua level sekaligus (provinsi, kabupaten, kecamatan, desa).
  *
- * Fungsi ini melakukan pencarian substring case-insensitive terhadap
- * nama seluruh provinsi, kabupaten/kota, kecamatan, dan desa/kelurahan.
- * Urutan hasil mengikuti hierarki: provinsi → kabupaten/kota → kecamatan → desa.
- *
- * **Perhatian:** Pencarian dengan kata umum (misal "KOTA") dapat menghasilkan
- * ribuan hasil. Pertimbangkan untuk menambahkan logika paginasi di sisi aplikasi.
- *
- * @param query - Kata kunci pencarian. Minimal 1 karakter setelah di-trim.
- *                String kosong atau hanya whitespace mengembalikan array kosong.
- * @returns Array {@link SearchResult} berisi hasil dari semua level.
- *          Gunakan properti `level` untuk membedakan tipe `data`.
- *          Array kosong jika query kosong atau tidak ada yang cocok.
- *
- * @example
- * ```typescript
- * // Pencarian sederhana
- * const hasil = searchByName("nagreg");
- * console.log(hasil.length); // beberapa hasil (kecamatan + desa)
- *
- * // Menggunakan discriminated union untuk akses field spesifik
- * for (const r of hasil) {
- *   if (r.level === "village") {
- *     console.log(`${r.data.name} — kode pos: ${r.data.postal_code}`);
- *   }
- * }
- *
- * // Query kosong mengembalikan array kosong
- * const kosong = searchByName("  ");
- * console.log(kosong.length); // 0
- * ```
+ * Hasil diurutkan: provinsi → kabupaten → kecamatan → desa.
+ * Query kosong / whitespace saja return array kosong.
  */
 export function searchByName(query: string): SearchResult[] {
 	const trimmed = query.trim();
