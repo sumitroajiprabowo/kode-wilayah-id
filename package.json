@@ -1,0 +1,127 @@
+{
+  "name": "kode-wilayah-id",
+  "version": "0.1.0",
+  "description": "Data kode wilayah Indonesia lengkap (provinsi, kabupaten/kota, kecamatan, desa/kelurahan) dari BPS — TypeScript, tree-shakeable, zero dependencies",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./provinces": {
+      "import": {
+        "types": "./dist/provinces.d.mts",
+        "default": "./dist/provinces.mjs"
+      },
+      "require": {
+        "types": "./dist/provinces.d.cts",
+        "default": "./dist/provinces.cjs"
+      }
+    },
+    "./regencies": {
+      "import": {
+        "types": "./dist/regencies.d.mts",
+        "default": "./dist/regencies.mjs"
+      },
+      "require": {
+        "types": "./dist/regencies.d.cts",
+        "default": "./dist/regencies.cjs"
+      }
+    },
+    "./districts": {
+      "import": {
+        "types": "./dist/districts.d.mts",
+        "default": "./dist/districts.mjs"
+      },
+      "require": {
+        "types": "./dist/districts.d.cts",
+        "default": "./dist/districts.cjs"
+      }
+    },
+    "./villages": {
+      "import": {
+        "types": "./dist/villages.d.mts",
+        "default": "./dist/villages.mjs"
+      },
+      "require": {
+        "types": "./dist/villages.d.cts",
+        "default": "./dist/villages.cjs"
+      }
+    },
+    "./search": {
+      "import": {
+        "types": "./dist/search.d.mts",
+        "default": "./dist/search.mjs"
+      },
+      "require": {
+        "types": "./dist/search.d.cts",
+        "default": "./dist/search.cjs"
+      }
+    },
+    "./types": {
+      "import": {
+        "types": "./dist/types.d.mts"
+      },
+      "require": {
+        "types": "./dist/types.d.cts"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "data"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check src/ tests/",
+    "lint:fix": "biome check --write src/ tests/",
+    "format": "biome format --write src/ tests/",
+    "format:check": "biome format src/ tests/",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run lint && npm run test:coverage && npm run build",
+    "audit:check": "npm audit"
+  },
+  "keywords": [
+    "indonesia",
+    "wilayah",
+    "provinsi",
+    "kabupaten",
+    "kecamatan",
+    "desa",
+    "bps",
+    "kode-wilayah",
+    "region-codes",
+    "administrative"
+  ],
+  "author": "Sumitro Aji Prabowo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumitroajiprabowo/kode-wilayah-id.git"
+  },
+  "homepage": "https://github.com/sumitroajiprabowo/kode-wilayah-id#readme",
+  "bugs": {
+    "url": "https://github.com/sumitroajiprabowo/kode-wilayah-id/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "@vitest/coverage-v8": "^4.1.6",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
+  }
+}
