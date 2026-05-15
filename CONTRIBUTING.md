@@ -91,6 +91,7 @@ kode-wilayah-id/
 │   ├── scrape-desa-fast.ts      # Parallel desa scraper
 │   ├── parse-kodepos.ts         # Parser kodepos Kemendagri
 │   └── merge-data.ts            # Merger & validator data
+├── examples/                    # Contoh penggunaan (12 framework)
 ├── dist/                        # Build output (generated)
 └── ...
 ```
