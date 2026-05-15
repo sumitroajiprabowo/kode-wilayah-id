@@ -1,19 +1,34 @@
 export {
-	getDistrictById,
+	getDistrictByBpsCode,
+	getDistrictByKemendagriCode,
 	getDistricts,
-	getDistrictsByRegencyId,
+	getDistrictsByBpsRegencyCode,
+	getDistrictsByKemendagriRegencyCode,
 } from "./districts";
 
-export { getProvinceById, getProvinces } from "./provinces";
+export {
+	getProvinceByBpsCode,
+	getProvinceByKemendagriCode,
+	getProvinces,
+} from "./provinces";
+
 export {
 	getRegencies,
-	getRegenciesByProvinceId,
-	getRegencyById,
+	getRegenciesByBpsProvinceCode,
+	getRegenciesByKemendagriProvinceCode,
+	getRegencyByBpsCode,
+	getRegencyByKemendagriCode,
 } from "./regencies";
+
 export { searchByName } from "./search";
+
 export type { District, Province, Regency, SearchResult, Village } from "./types";
+
 export {
-	getVillageById,
+	getVillageByBpsCode,
+	getVillageByKemendagriCode,
 	getVillages,
-	getVillagesByDistrictId,
+	getVillagesByBpsDistrictCode,
+	getVillagesByKemendagriDistrictCode,
+	getVillagesByPostalCode,
 } from "./villages";
