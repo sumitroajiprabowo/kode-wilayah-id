@@ -7,4 +7,5 @@ biome.json
 coverage/
 .github/
 *.tgz
+*.map
 .DS_Store
