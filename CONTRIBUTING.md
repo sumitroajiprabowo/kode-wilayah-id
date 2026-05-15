@@ -72,17 +72,26 @@ npm run format:check
 
 ```
 kode-wilayah-id/
-├── data/              # JSON data wilayah (dari BPS)
-├── src/               # Source code TypeScript
-│   ├── types.ts       # Type definitions
-│   ├── provinces.ts   # Modul provinsi
-│   ├── regencies.ts   # Modul kabupaten/kota
-│   ├── districts.ts   # Modul kecamatan
-│   ├── villages.ts    # Modul desa/kelurahan
-│   ├── search.ts      # Modul pencarian
-│   └── index.ts       # Re-export semua
-├── tests/             # Unit & integration tests
-├── dist/              # Build output (generated)
+├── data/                        # JSON data wilayah (BPS + Kemendagri)
+│   ├── provinces.json           # 38 provinsi
+│   ├── regencies.json           # 514 kabupaten/kota
+│   ├── districts.json           # 7.286 kecamatan
+│   └── villages.json            # 84.270 desa/kelurahan
+├── src/                         # Source code TypeScript
+│   ├── types.ts                 # Type definitions (dual-code)
+│   ├── provinces.ts             # Modul provinsi (BPS + Kemendagri)
+│   ├── regencies.ts             # Modul kabupaten/kota
+│   ├── districts.ts             # Modul kecamatan
+│   ├── villages.ts              # Modul desa/kelurahan + kode pos
+│   ├── search.ts                # Modul pencarian
+│   └── index.ts                 # Re-export semua
+├── tests/                       # Unit & integration tests
+├── scripts/                     # Data pipeline (TypeScript)
+│   ├── scrape-bridging.ts       # Scraper BPS bridging API
+│   ├── scrape-desa-fast.ts      # Parallel desa scraper
+│   ├── parse-kodepos.ts         # Parser kodepos Kemendagri
+│   └── merge-data.ts            # Merger & validator data
+├── dist/                        # Build output (generated)
 └── ...
 ```
 
@@ -93,13 +102,34 @@ kode-wilayah-id/
 - **Lint clean** — Biome lint tanpa error
 - **Format consistent** — Biome format sesuai konfigurasi
 
-## Update Data Wilayah
+## Data Pipeline
 
-Data wilayah bersumber dari [BPS SIG Bridging Kode](https://sig.bps.go.id/bridging-kode/index). Jika ada pemekaran wilayah atau perubahan data:
+Data wilayah bersumber dari dua sumber resmi:
 
-1. Update file JSON di `data/`
+- **BPS** (Badan Pusat Statistik) — kode wilayah & bridging BPS-Kemendagri via [SIG Bridging API](https://sig.bps.go.id/bridging-kode/index)
+- **Kemendagri** — kode pos via [cahyadsn/wilayah_kodepos](https://github.com/cahyadsn/wilayah_kodepos) (MIT license)
+
+Semua scripts pipeline ditulis dalam TypeScript (`scripts/`). Untuk regenerasi data:
+
+```bash
+# 1. Scrape bridging data dari BPS API
+npx tsx scripts/scrape-bridging.ts
+
+# 2. Scrape data desa (parallel, ~12 menit)
+npx tsx scripts/scrape-desa-fast.ts
+
+# 3. Parse kodepos Kemendagri
+npx tsx scripts/parse-kodepos.ts
+
+# 4. Merge & validasi semua data
+npx tsx scripts/merge-data.ts
+```
+
+Jika ada pemekaran wilayah atau perubahan data:
+
+1. Jalankan pipeline di atas untuk regenerasi `data/*.json`
 2. Update jumlah di README.md
-3. Pastikan semua test masih pass
+3. Pastikan semua test masih pass dengan coverage 100%
 4. Buat PR dengan label `data-update`
 
 ## Lisensi
