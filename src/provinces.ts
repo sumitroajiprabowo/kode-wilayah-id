@@ -4,6 +4,10 @@
  * Menyediakan fungsi untuk mengambil dan mencari data provinsi
  * berdasarkan kode BPS maupun kode Kemendagri.
  *
+ * Secara internal, modul ini pakai lazy-initialized `Map` untuk lookup O(1).
+ * Meskipun provinsi cuma 38 item (jadi Array.find pun cepat), Map tetap dipakai
+ * supaya pola akses konsisten di seluruh modul.
+ *
  * @example
  * ```typescript
  * import { getProvinces, getProvinceByBpsCode } from "kode-wilayah-id/provinces";
@@ -19,6 +23,37 @@ import provincesData from "../data/provinces.json";
 import type { Province } from "./types";
 
 const provinces: Province[] = provincesData as Province[];
+
+// ---------------------------------------------------------------------------
+// Lazy-initialized index Maps — dibuat sekali saat pertama kali dipanggil
+// ---------------------------------------------------------------------------
+
+/** Index kode BPS provinsi → Province (1-to-1) */
+let bpsIndex: Map<string, Province> | null = null;
+function getBpsIndex(): Map<string, Province> {
+	if (!bpsIndex) {
+		bpsIndex = new Map(provinces.map((p) => [p.bps_code, p]));
+	}
+	return bpsIndex;
+}
+
+/** Index kode Kemendagri provinsi → Province (1-to-1, skip null) */
+let kemendagriIndex: Map<string, Province> | null = null;
+function getKemendagriIndex(): Map<string, Province> {
+	if (!kemendagriIndex) {
+		kemendagriIndex = new Map();
+		for (const p of provinces) {
+			if (p.kemendagri_code) {
+				kemendagriIndex.set(p.kemendagri_code, p);
+			}
+		}
+	}
+	return kemendagriIndex;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 /**
  * Ambil seluruh data provinsi di Indonesia.
@@ -52,7 +87,7 @@ export function getProvinces(): Province[] {
  * ```
  */
 export function getProvinceByBpsCode(code: string): Province | undefined {
-	return provinces.find((p) => p.bps_code === code);
+	return getBpsIndex().get(code);
 }
 
 /**
@@ -75,5 +110,5 @@ export function getProvinceByBpsCode(code: string): Province | undefined {
  * ```
  */
 export function getProvinceByKemendagriCode(code: string): Province | undefined {
-	return provinces.find((p) => p.kemendagri_code === code);
+	return getKemendagriIndex().get(code);
 }
