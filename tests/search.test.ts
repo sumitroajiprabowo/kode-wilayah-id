@@ -57,3 +57,80 @@ describe("searchByName", () => {
 		}
 	});
 });
+
+describe("searchByName with options", () => {
+	it("filters by level: province", () => {
+		const results = searchByName("jawa", { level: "province" });
+		expect(results.length).toBeGreaterThan(0);
+		for (const r of results) {
+			expect(r.level).toBe("province");
+		}
+	});
+
+	it("filters by level: regency", () => {
+		const results = searchByName("bandung", { level: "regency" });
+		expect(results.length).toBeGreaterThanOrEqual(3);
+		for (const r of results) {
+			expect(r.level).toBe("regency");
+		}
+	});
+
+	it("filters by level: district", () => {
+		const results = searchByName("nagreg", { level: "district" });
+		expect(results.length).toBeGreaterThanOrEqual(1);
+		for (const r of results) {
+			expect(r.level).toBe("district");
+		}
+	});
+
+	it("filters by level: village", () => {
+		const results = searchByName("nagreg", { level: "village" });
+		expect(results.length).toBeGreaterThanOrEqual(1);
+		for (const r of results) {
+			expect(r.level).toBe("village");
+		}
+	});
+
+	it("limits results", () => {
+		const unlimited = searchByName("bandung");
+		const limited = searchByName("bandung", { limit: 5 });
+		expect(limited.length).toBe(5);
+		expect(unlimited.length).toBeGreaterThan(5);
+	});
+
+	it("limit with level combined", () => {
+		const results = searchByName("bandung", { level: "regency", limit: 2 });
+		expect(results.length).toBe(2);
+		for (const r of results) {
+			expect(r.level).toBe("regency");
+		}
+	});
+
+	it("returns all when limit exceeds matches", () => {
+		const results = searchByName("XYZNONEXISTENT", { limit: 100 });
+		expect(results.length).toBe(0);
+	});
+
+	it("empty options behaves same as no options", () => {
+		const withOpts = searchByName("bandung", {});
+		const withoutOpts = searchByName("bandung");
+		expect(withOpts.length).toBe(withoutOpts.length);
+	});
+
+	it("limit stops early across different levels", () => {
+		// "JAWA" appears in multiple provinces, regencies, etc.
+		const limited = searchByName("jawa", { limit: 3 });
+		expect(limited.length).toBe(3);
+	});
+
+	it("limit 1 returns exactly one result", () => {
+		const results = searchByName("bandung", { limit: 1 });
+		expect(results.length).toBe(1);
+	});
+
+	it("limit stops at village level when filtering villages only", () => {
+		const results = searchByName("nagreg", { level: "village", limit: 1 });
+		expect(results.length).toBe(1);
+		expect(results[0].level).toBe("village");
+	});
+});
