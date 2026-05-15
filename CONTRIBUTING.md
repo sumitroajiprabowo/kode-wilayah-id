@@ -28,7 +28,7 @@ Terima kasih atas ketertarikan Anda untuk berkontribusi! Berikut panduan untuk m
 npm run lint        # Cek lint
 npm run format:check # Cek formatting
 npm run typecheck   # Cek TypeScript types
-npm run test:coverage # Jalankan test dengan coverage 100%
+npm run test:coverage # Jalankan test dengan coverage
 npm run build       # Build package
 ```
 
@@ -97,10 +97,10 @@ kode-wilayah-id/
 
 ## Standar Kualitas
 
-- **Coverage 100%** — Semua test harus pass dengan coverage 100%
 - **TypeScript strict** — Tidak boleh ada `any` type
 - **Lint clean** — Biome lint tanpa error
 - **Format consistent** — Biome format sesuai konfigurasi
+- **Semua test pass** — Pastikan tidak ada test yang gagal
 
 ## Data Pipeline
 
@@ -129,7 +129,7 @@ Jika ada pemekaran wilayah atau perubahan data:
 
 1. Jalankan pipeline di atas untuk regenerasi `data/*.json`
 2. Update jumlah di README.md
-3. Pastikan semua test masih pass dengan coverage 100%
+3. Pastikan semua test masih pass
 4. Buat PR dengan label `data-update`
 
 ## Lisensi
