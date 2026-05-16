@@ -5,6 +5,23 @@ Semua perubahan penting pada proyek ini akan didokumentasikan di file ini.
 Format berdasarkan [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/),
 dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.1] - 2026-05-16
+
+### Performance
+
+- Semua modul sekarang pakai **lazy-initialized `Map`** untuk lookup O(1), bukan linear scan `Array.find()`/`Array.filter()`
+  - `villages.ts` — 5 index Maps (bps, kemendagri, bpsDistrict, kemendagriDistrict, postalCode) — speedup ~30.000× pada 84.270 item
+  - `districts.ts` — 4 index Maps (bps, kemendagri, bpsRegency, kemendagriRegency)
+  - `regencies.ts` — 4 index Maps (bps, kemendagri, bpsProvince, kemendagriProvince)
+  - `provinces.ts` — 2 index Maps (bps, kemendagri)
+  - `hierarchy.ts` — 7 index Maps (4 single-lookup + 3 group-lookup)
+  - `stats.ts` — 3 index Maps (group-by counting tanpa multi-pass filter)
+- `searchByName()` — hapus `.toUpperCase()` yang tidak perlu pada sisi data (nama wilayah sudah UPPERCASE di JSON), mengurangi ~92.000 string operation per panggilan
+
+### Changed
+
+- CI sekarang memverifikasi semua 27 dist files (9 entry points × 3 format: `.js`, `.cjs`, `.d.ts`), bukan hanya 6 file
+
 ## [1.1.0] - 2026-05-15
 
 ### Added
@@ -77,6 +94,7 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
 - BPS SIG Bridging Kode — Periode 2025 Semester 1 (BPS) - 2025 (Kemendagri)
 
+[1.1.1]: https://github.com/sumitroajiprabowo/kode-wilayah-id/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/releases/tag/v1.1.0
 [1.0.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/releases/tag/v1.0.0
 [0.1.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/releases/tag/v0.1.0

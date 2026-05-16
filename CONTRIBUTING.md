@@ -84,6 +84,8 @@ kode-wilayah-id/
 │   ├── districts.ts             # Modul kecamatan
 │   ├── villages.ts              # Modul desa/kelurahan + kode pos
 │   ├── search.ts                # Modul pencarian
+│   ├── hierarchy.ts             # Modul hierarki (reverse lookup + drill-down tree)
+│   ├── stats.ts                 # Modul statistik penghitungan wilayah
 │   └── index.ts                 # Re-export semua
 ├── tests/                       # Unit & integration tests
 ├── scripts/                     # Data pipeline (TypeScript)
@@ -101,7 +103,9 @@ kode-wilayah-id/
 - **TypeScript strict** — Tidak boleh ada `any` type
 - **Lint clean** — Biome lint tanpa error
 - **Format consistent** — Biome format sesuai konfigurasi
+- **100% test coverage** — Semua statements, branches, functions, dan lines harus tercakup
 - **Semua test pass** — Pastikan tidak ada test yang gagal
+- **Performance** — Gunakan `Map` untuk lookup, hindari linear scan pada dataset besar
 
 ## Data Pipeline
 
