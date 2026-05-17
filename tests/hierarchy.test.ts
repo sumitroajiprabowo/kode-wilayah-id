@@ -113,4 +113,13 @@ describe("getDistrictTree", () => {
 	it("returns undefined for invalid code", () => {
 		expect(getDistrictTree("9999999")).toBeUndefined();
 	});
+
+	it("returns a defensive copy — mutasi villages tidak merusak data internal", () => {
+		const a = getDistrictTree("3204101");
+		expect(a).toBeDefined();
+		const originalLength = a?.villages.length;
+		a?.villages.push({} as never);
+		const b = getDistrictTree("3204101");
+		expect(b?.villages).toHaveLength(originalLength);
+	});
 });

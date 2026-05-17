@@ -182,44 +182,112 @@ export interface VillageHierarchy {
 }
 
 /**
- * Hierarki lengkap dari kecamatan sampai provinsi.
+ * Hierarki lengkap dari kecamatan sampai provinsi (reverse lookup).
+ *
+ * Mirip dengan {@link VillageHierarchy}, tapi mulai dari level kecamatan.
+ * Cocok dipakai kalau form cuma perlu sampai level kecamatan — misalnya
+ * untuk kebutuhan statistik per kecamatan yang butuh info kabupaten dan provinsi.
+ *
+ * @example
+ * ```typescript
+ * const info = getDistrictWithParents("3204101");
+ * if (info) {
+ *   console.log(info.district.name); // "NAGREG"
+ *   console.log(info.regency.name);  // "KAB. BANDUNG"
+ *   console.log(info.province.name); // "JAWA BARAT"
+ *
+ *   // Bisa langsung akses kode Kemendagri dari masing-masing level
+ *   console.log(info.district.kemendagri_code); // "320413"
+ *   console.log(info.regency.kemendagri_code);  // "3204"
+ * }
+ * ```
  */
 export interface DistrictHierarchy {
-	/** Data provinsi */
+	/** Data provinsi induk */
 	province: Province;
-	/** Data kabupaten/kota */
+	/** Data kabupaten/kota induk */
 	regency: Regency;
-	/** Data kecamatan */
+	/** Data kecamatan yang dicari */
 	district: District;
 }
 
 /**
- * Hierarki lengkap dari kabupaten sampai provinsi.
+ * Hierarki lengkap dari kabupaten/kota sampai provinsi (reverse lookup).
+ *
+ * Berguna saat perlu menampilkan info kabupaten beserta provinsi induknya —
+ * misalnya di breadcrumb navigasi atau header halaman detail kabupaten.
+ *
+ * @example
+ * ```typescript
+ * const info = getRegencyWithParent("3204");
+ * if (info) {
+ *   console.log(info.regency.name);  // "KAB. BANDUNG"
+ *   console.log(info.province.name); // "JAWA BARAT"
+ *
+ *   // Contoh: render breadcrumb
+ *   const breadcrumb = `${info.province.name} > ${info.regency.name}`;
+ *   console.log(breadcrumb); // "JAWA BARAT > KAB. BANDUNG"
+ * }
+ * ```
  */
 export interface RegencyHierarchy {
-	/** Data provinsi */
+	/** Data provinsi induk */
 	province: Province;
-	/** Data kabupaten/kota */
+	/** Data kabupaten/kota yang dicari */
 	regency: Regency;
 }
 
 /**
  * Node kabupaten/kota dalam tree hierarki, berisi daftar kecamatan di bawahnya.
+ *
+ * Merupakan satu level dalam tree drill-down. Setiap `RegencyNode` menyimpan
+ * data kabupaten/kota beserta seluruh kecamatan (dan desa-desanya) sebagai children.
+ *
+ * @example
+ * ```typescript
+ * const tree = getRegencyTree("3204");
+ * if (tree) {
+ *   console.log(tree.regency.name);     // "KAB. BANDUNG"
+ *   console.log(tree.districts.length); // jumlah kecamatan di Kab. Bandung
+ *
+ *   // Iterasi kecamatan dan desa di bawahnya
+ *   for (const kec of tree.districts) {
+ *     console.log(`${kec.district.name}: ${kec.villages.length} desa`);
+ *   }
+ * }
+ * ```
  */
 export interface RegencyNode {
 	/** Data kabupaten/kota */
 	regency: Regency;
-	/** Daftar kecamatan beserta desa-desanya */
+	/** Daftar kecamatan beserta desa-desanya (shallow copy, aman dimutasi) */
 	districts: DistrictNode[];
 }
 
 /**
  * Node kecamatan dalam tree hierarki, berisi daftar desa di bawahnya.
+ *
+ * Merupakan leaf-parent dalam tree drill-down. Setiap `DistrictNode` menyimpan
+ * data kecamatan beserta semua desa/kelurahan yang ada di dalamnya.
+ *
+ * @example
+ * ```typescript
+ * const tree = getDistrictTree("3204101");
+ * if (tree) {
+ *   console.log(tree.district.name);    // "NAGREG"
+ *   console.log(tree.villages.length); // jumlah desa di kec. Nagreg
+ *
+ *   // Tampilkan semua desa beserta kode pos-nya
+ *   for (const desa of tree.villages) {
+ *     console.log(`${desa.name} — kode pos: ${desa.postal_code ?? "belum tersedia"}`);
+ *   }
+ * }
+ * ```
  */
 export interface DistrictNode {
 	/** Data kecamatan */
 	district: District;
-	/** Daftar desa/kelurahan */
+	/** Daftar desa/kelurahan di kecamatan ini (shallow copy, aman dimutasi) */
 	villages: Village[];
 }
 

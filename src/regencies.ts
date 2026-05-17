@@ -123,7 +123,8 @@ export function getRegencies(): Regency[] {
  * ```
  */
 export function getRegenciesByBpsProvinceCode(code: string): Regency[] {
-	return getBpsProvinceIndex().get(code) ?? [];
+	const arr = getBpsProvinceIndex().get(code);
+	return arr ? [...arr] : [];
 }
 
 /**
@@ -139,7 +140,8 @@ export function getRegenciesByBpsProvinceCode(code: string): Regency[] {
  * ```
  */
 export function getRegenciesByKemendagriProvinceCode(code: string): Regency[] {
-	return getKemendagriProvinceIndex().get(code) ?? [];
+	const arr = getKemendagriProvinceIndex().get(code);
+	return arr ? [...arr] : [];
 }
 
 /**

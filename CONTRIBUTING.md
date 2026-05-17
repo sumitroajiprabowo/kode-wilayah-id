@@ -60,6 +60,9 @@ npm test
 # Jalankan test dengan coverage
 npm run test:coverage
 
+# Benchmark performa Map vs Array
+npx vitest bench
+
 # Build
 npm run build
 
@@ -88,6 +91,8 @@ kode-wilayah-id/
 │   ├── stats.ts                 # Modul statistik penghitungan wilayah
 │   └── index.ts                 # Re-export semua
 ├── tests/                       # Unit & integration tests
+│   ├── *.test.ts                # Test per modul
+│   └── benchmark.bench.ts       # Benchmark Map vs Array (vitest bench)
 ├── scripts/                     # Data pipeline (TypeScript)
 │   ├── scrape-bridging.ts       # Scraper BPS bridging API
 │   ├── scrape-desa-fast.ts      # Parallel desa scraper
@@ -106,6 +111,7 @@ kode-wilayah-id/
 - **100% test coverage** — Semua statements, branches, functions, dan lines harus tercakup
 - **Semua test pass** — Pastikan tidak ada test yang gagal
 - **Performance** — Gunakan `Map` untuk lookup, hindari linear scan pada dataset besar
+- **Immutability** — Fungsi grouped lookup harus return shallow copy, bukan referensi langsung ke array internal Map
 
 ## Data Pipeline
 

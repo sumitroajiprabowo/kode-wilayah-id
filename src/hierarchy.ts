@@ -288,7 +288,7 @@ export function getProvinceTree(bpsProvinceCode: string): ProvinceTree | undefin
 		const districtNodes: DistrictNode[] = regDistricts.map((district) => ({
 			district,
 			/* v8 ignore next -- valid district selalu punya villages di data */
-			villages: villDistrictIdx.get(district.bps_code) ?? [],
+			villages: [...(villDistrictIdx.get(district.bps_code) ?? [])],
 		}));
 
 		return { regency, districts: districtNodes };
@@ -328,7 +328,7 @@ export function getRegencyTree(bpsRegencyCode: string): RegencyNode | undefined 
 	const districtNodes: DistrictNode[] = regDistricts.map((district) => ({
 		district,
 		/* v8 ignore next -- valid district selalu punya villages di data */
-		villages: villDistrictIdx.get(district.bps_code) ?? [],
+		villages: [...(villDistrictIdx.get(district.bps_code) ?? [])],
 	}));
 
 	return { regency, districts: districtNodes };
@@ -362,6 +362,6 @@ export function getDistrictTree(bpsDistrictCode: string): DistrictNode | undefin
 	return {
 		district,
 		/* v8 ignore next -- valid district selalu punya villages di data */
-		villages: getVillagesByDistrict().get(bpsDistrictCode) ?? [],
+		villages: [...(getVillagesByDistrict().get(bpsDistrictCode) ?? [])],
 	};
 }

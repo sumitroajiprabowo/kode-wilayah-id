@@ -150,7 +150,8 @@ export function getVillages(): Village[] {
  * ```
  */
 export function getVillagesByBpsDistrictCode(code: string): Village[] {
-	return getBpsDistrictIndex().get(code) ?? [];
+	const arr = getBpsDistrictIndex().get(code);
+	return arr ? [...arr] : [];
 }
 
 /**
@@ -166,7 +167,8 @@ export function getVillagesByBpsDistrictCode(code: string): Village[] {
  * ```
  */
 export function getVillagesByKemendagriDistrictCode(code: string): Village[] {
-	return getKemendagriDistrictIndex().get(code) ?? [];
+	const arr = getKemendagriDistrictIndex().get(code);
+	return arr ? [...arr] : [];
 }
 
 /**
@@ -223,5 +225,6 @@ export function getVillageByKemendagriCode(code: string): Village | undefined {
  * ```
  */
 export function getVillagesByPostalCode(code: string): Village[] {
-	return getPostalCodeIndex().get(code) ?? [];
+	const arr = getPostalCodeIndex().get(code);
+	return arr ? [...arr] : [];
 }

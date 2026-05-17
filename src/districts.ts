@@ -127,7 +127,8 @@ export function getDistricts(): District[] {
  * ```
  */
 export function getDistrictsByBpsRegencyCode(code: string): District[] {
-	return getBpsRegencyIndex().get(code) ?? [];
+	const arr = getBpsRegencyIndex().get(code);
+	return arr ? [...arr] : [];
 }
 
 /**
@@ -143,7 +144,8 @@ export function getDistrictsByBpsRegencyCode(code: string): District[] {
  * ```
  */
 export function getDistrictsByKemendagriRegencyCode(code: string): District[] {
-	return getKemendagriRegencyIndex().get(code) ?? [];
+	const arr = getKemendagriRegencyIndex().get(code);
+	return arr ? [...arr] : [];
 }
 
 /**

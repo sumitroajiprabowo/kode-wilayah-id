@@ -5,6 +5,19 @@ Semua perubahan penting pada proyek ini akan didokumentasikan di file ini.
 Format berdasarkan [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/),
 dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.2.0] - 2026-05-17
+
+### Added
+
+- **Immutability** — fungsi grouped lookup (`getVillagesByBpsDistrictCode`, `getDistrictsByBpsRegencyCode`, `getRegenciesByBpsProvinceCode`, dan semua varian Kemendagri/kode pos) sekarang return shallow copy, bukan referensi langsung ke array internal Map. Mutasi pada array hasil tidak akan merusak data internal
+- **Benchmark test** — file `tests/benchmark.bench.ts` untuk membuktikan keunggulan Map vs Array secara otomatis via `npx vitest bench`
+- Test immutability (defensive copy) di `villages.test.ts`, `districts.test.ts`, `regencies.test.ts`, dan `hierarchy.test.ts`
+
+### Changed
+
+- Fungsi tree di `hierarchy.ts` (`getProvinceTree`, `getRegencyTree`, `getDistrictTree`) sekarang juga return shallow copy villages, bukan referensi langsung
+- JSDoc diperkaya untuk tipe `DistrictHierarchy`, `RegencyHierarchy`, `RegencyNode`, dan `DistrictNode` — sekarang lengkap dengan `@example` dan deskripsi detail
+
 ## [1.1.1] - 2026-05-16
 
 ### Performance
@@ -94,6 +107,7 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
 - BPS SIG Bridging Kode — Periode 2025 Semester 1 (BPS) - 2025 (Kemendagri)
 
+[1.2.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/sumitroajiprabowo/kode-wilayah-id/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/releases/tag/v1.1.0
 [1.0.0]: https://github.com/sumitroajiprabowo/kode-wilayah-id/releases/tag/v1.0.0

@@ -32,6 +32,14 @@ describe("getRegenciesByBpsProvinceCode", () => {
 	it("returns empty array for empty string", () => {
 		expect(getRegenciesByBpsProvinceCode("")).toEqual([]);
 	});
+
+	it("returns a defensive copy — mutasi tidak merusak data internal", () => {
+		const a = getRegenciesByBpsProvinceCode("32");
+		const originalLength = a.length;
+		a.push({} as never);
+		const b = getRegenciesByBpsProvinceCode("32");
+		expect(b).toHaveLength(originalLength);
+	});
 });
 
 describe("getRegenciesByKemendagriProvinceCode", () => {
@@ -49,6 +57,14 @@ describe("getRegenciesByKemendagriProvinceCode", () => {
 
 	it("returns empty array for empty string", () => {
 		expect(getRegenciesByKemendagriProvinceCode("")).toEqual([]);
+	});
+
+	it("returns a defensive copy — mutasi tidak merusak data internal", () => {
+		const a = getRegenciesByKemendagriProvinceCode("32");
+		const originalLength = a.length;
+		a.push({} as never);
+		const b = getRegenciesByKemendagriProvinceCode("32");
+		expect(b).toHaveLength(originalLength);
 	});
 });
 

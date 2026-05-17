@@ -25,6 +25,7 @@ Tidak perlu database, API call, atau file eksternal. Semua data ter-embed di pac
 - **Dual code system** -- kode BPS (statistik) dan Kemendagri (administrasi) dalam satu package
 - **83.762 kode pos** -- mapping kode pos dari PT Pos Indonesia
 - **Tree-shakeable** -- import hanya level yang dibutuhkan (provinsi saja = ~2.5 KB)
+- **Immutable** -- semua grouped lookup return shallow copy, aman dimutasi tanpa merusak data internal
 - **TypeScript-first** -- strict types, auto-complete di IDE
 - **Dual ESM + CJS** -- support semua environment (browser, Node.js, Bun, Deno)
 - **Zero dependencies** -- hanya data + types
@@ -49,12 +50,14 @@ Semua modul pakai **lazy-initialized `Map`** untuk lookup O(1). Map dibuat sekal
 
 | Modul | Items | Index Maps | Speedup vs linear scan |
 |-------|-------|------------|------------------------|
-| `villages` | 84.270 | 5 Maps | ~30.000× |
+| `villages` | 84.270 | 5 Maps | ~18.000× |
 | `districts` | 7.286 | 4 Maps | ~2.000× |
 | `regencies` | 514 | 4 Maps | ~150× |
 | `provinces` | 38 | 2 Maps | konsistensi |
 | `hierarchy` | semua | 7 Maps | massive pada tree ops |
 | `stats` | semua | 3 Maps | no multi-pass filter |
+
+> Angka speedup berdasarkan hasil `npx vitest bench` aktual. Hasil bervariasi tergantung hardware.
 
 ```typescript
 // Contoh: lookup desa dari 84.270 item
@@ -64,6 +67,16 @@ const desa = getVillageByBpsCode("3204052003"); // O(1) via Map, ~0.00003ms
 const desaKec = getVillagesByBpsDistrictCode("3204050"); // O(1) via Map
 
 // Tanpa Map (versi lama): ~1ms per lookup = 30.000× lebih lambat
+```
+
+### Immutability
+
+Semua fungsi yang return array (baik `getAll*()`, `getBy*()` grouped, maupun tree `villages`) selalu return **shallow copy**. Aman dimutasi tanpa merusak data internal:
+
+```typescript
+const desa = getVillagesByBpsDistrictCode("3204050");
+desa.push(customVillage); // aman — tidak merusak index internal
+const desaLagi = getVillagesByBpsDistrictCode("3204050"); // tetap original
 ```
 
 ## Instalasi
@@ -404,6 +417,7 @@ npm run format:check  # Format check
 npm run typecheck     # TypeScript check
 npm run test:coverage # Test dengan coverage
 npm run build         # Build ESM + CJS
+npx vitest bench      # Benchmark Map vs Array
 ```
 
 ## Security

@@ -32,6 +32,14 @@ describe("getVillagesByBpsDistrictCode", () => {
 	it("returns empty array for empty string", () => {
 		expect(getVillagesByBpsDistrictCode("")).toEqual([]);
 	});
+
+	it("returns a defensive copy — mutasi tidak merusak data internal", () => {
+		const a = getVillagesByBpsDistrictCode("1101010");
+		const originalLength = a.length;
+		a.push({} as never);
+		const b = getVillagesByBpsDistrictCode("1101010");
+		expect(b).toHaveLength(originalLength);
+	});
 });
 
 describe("getVillagesByKemendagriDistrictCode", () => {
@@ -53,6 +61,17 @@ describe("getVillagesByKemendagriDistrictCode", () => {
 
 	it("returns empty array for empty string", () => {
 		expect(getVillagesByKemendagriDistrictCode("")).toEqual([]);
+	});
+
+	it("returns a defensive copy — mutasi tidak merusak data internal", () => {
+		const v = getVillageByBpsCode("1101010001");
+		if (v?.kemendagri_district_code) {
+			const a = getVillagesByKemendagriDistrictCode(v.kemendagri_district_code);
+			const originalLength = a.length;
+			a.push({} as never);
+			const b = getVillagesByKemendagriDistrictCode(v.kemendagri_district_code);
+			expect(b).toHaveLength(originalLength);
+		}
 	});
 });
 
@@ -121,6 +140,18 @@ describe("getVillagesByPostalCode", () => {
 
 	it("returns empty array for empty string", () => {
 		expect(getVillagesByPostalCode("")).toEqual([]);
+	});
+
+	it("returns a defensive copy — mutasi tidak merusak data internal", () => {
+		const allVillages = getVillages();
+		const withPostal = allVillages.find((v) => v.postal_code !== null);
+		if (withPostal?.postal_code) {
+			const a = getVillagesByPostalCode(withPostal.postal_code);
+			const originalLength = a.length;
+			a.push({} as never);
+			const b = getVillagesByPostalCode(withPostal.postal_code);
+			expect(b).toHaveLength(originalLength);
+		}
 	});
 });
 

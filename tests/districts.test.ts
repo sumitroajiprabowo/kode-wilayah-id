@@ -32,6 +32,14 @@ describe("getDistrictsByBpsRegencyCode", () => {
 	it("returns empty array for empty string", () => {
 		expect(getDistrictsByBpsRegencyCode("")).toEqual([]);
 	});
+
+	it("returns a defensive copy — mutasi tidak merusak data internal", () => {
+		const a = getDistrictsByBpsRegencyCode("1101");
+		const originalLength = a.length;
+		a.push({} as never);
+		const b = getDistrictsByBpsRegencyCode("1101");
+		expect(b).toHaveLength(originalLength);
+	});
 });
 
 describe("getDistrictsByKemendagriRegencyCode", () => {
@@ -53,6 +61,17 @@ describe("getDistrictsByKemendagriRegencyCode", () => {
 
 	it("returns empty array for empty string", () => {
 		expect(getDistrictsByKemendagriRegencyCode("")).toEqual([]);
+	});
+
+	it("returns a defensive copy — mutasi tidak merusak data internal", () => {
+		const d = getDistrictByBpsCode("1101010");
+		if (d?.kemendagri_regency_code) {
+			const a = getDistrictsByKemendagriRegencyCode(d.kemendagri_regency_code);
+			const originalLength = a.length;
+			a.push({} as never);
+			const b = getDistrictsByKemendagriRegencyCode(d.kemendagri_regency_code);
+			expect(b).toHaveLength(originalLength);
+		}
 	});
 });
 
