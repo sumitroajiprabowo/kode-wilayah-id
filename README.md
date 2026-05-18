@@ -3,11 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/kode-wilayah-id.svg)](https://www.npmjs.com/package/kode-wilayah-id)
 [![CI](https://github.com/sumitroajiprabowo/kode-wilayah-id/actions/workflows/ci.yml/badge.svg)](https://github.com/sumitroajiprabowo/kode-wilayah-id/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/sumitroajiprabowo/kode-wilayah-id/branch/main/graph/badge.svg)](https://codecov.io/gh/sumitroajiprabowo/kode-wilayah-id)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D20-green.svg)](https://nodejs.org/)
-[![Bundle Size](https://img.shields.io/badge/provinces-2.5KB-green.svg)](https://www.npmjs.com/package/kode-wilayah-id)
-[![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](https://www.npmjs.com/package/kode-wilayah-id)
 
 Data **kode wilayah Indonesia** lengkap (provinsi, kabupaten/kota, kecamatan, desa/kelurahan) dengan **dual code system**: BPS (Badan Pusat Statistik) dan Kemendagri (Kementerian Dalam Negeri), termasuk kode pos.
 
