@@ -5,6 +5,17 @@ Semua perubahan penting pada proyek ini akan didokumentasikan di file ini.
 Format berdasarkan [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/),
 dan proyek ini mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.2.1] - 2026-11-08
+
+### Fixed
+
+- **Koreksi nama desa** Kab. Pemalang:
+  - `NYAMPLUNG SARI` → `NYAMPLUNGSARI` (Kec. Petarukan, BPS 3327100017)
+  - `PAGONGSORAN` → `PEGONGSORAN` (Kec. Pemalang, BPS 3327080003)
+- **Lengkapi data desa** Sodong Basari (Kec. Belik, BPS 3327030013):
+  - `kemendagri_code`: `null` → `3327032013`
+  - `postal_code`: `null` → `52356`
+
 ## [1.2.0] - 2026-05-17
 
 ### Added
