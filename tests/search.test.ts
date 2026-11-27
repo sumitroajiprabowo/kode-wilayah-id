@@ -128,6 +128,11 @@ describe("searchByName with options", () => {
 		expect(results.length).toBe(1);
 	});
 
+	it("limit 0 returns no results", () => {
+		expect(searchByName("bandung", { limit: 0 })).toEqual([]);
+		expect(searchByName("bandung", { level: "village", limit: 0 })).toEqual([]);
+	});
+
 	it("limit stops at village level when filtering villages only", () => {
 		const results = searchByName("nagreg", { level: "village", limit: 1 });
 		expect(results.length).toBe(1);

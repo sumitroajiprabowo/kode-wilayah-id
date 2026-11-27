@@ -150,7 +150,7 @@ export interface SearchOptions {
 	/**
 	 * Batas maksimal jumlah hasil.
 	 * Berguna untuk paginasi atau autocomplete supaya tidak return ribuan item.
-	 * Kalau tidak diisi, return semua yang cocok.
+	 * Kalau tidak diisi, return semua yang cocok. Kalau `0`, return array kosong.
 	 */
 	limit?: number;
 }

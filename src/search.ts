@@ -85,7 +85,7 @@ export function searchByName(query: string, options?: SearchOptions): SearchResu
 
 	if (!level || level === "province") {
 		for (const p of provinces) {
-			if (limit && results.length >= limit) return results;
+			if (limit !== undefined && results.length >= limit) return results;
 			if (p.name.includes(upperQuery)) {
 				results.push({ level: "province", data: p });
 			}
@@ -94,7 +94,7 @@ export function searchByName(query: string, options?: SearchOptions): SearchResu
 
 	if (!level || level === "regency") {
 		for (const r of regencies) {
-			if (limit && results.length >= limit) return results;
+			if (limit !== undefined && results.length >= limit) return results;
 			if (r.name.includes(upperQuery)) {
 				results.push({ level: "regency", data: r });
 			}
@@ -103,7 +103,7 @@ export function searchByName(query: string, options?: SearchOptions): SearchResu
 
 	if (!level || level === "district") {
 		for (const d of districts) {
-			if (limit && results.length >= limit) return results;
+			if (limit !== undefined && results.length >= limit) return results;
 			if (d.name.includes(upperQuery)) {
 				results.push({ level: "district", data: d });
 			}
@@ -112,7 +112,7 @@ export function searchByName(query: string, options?: SearchOptions): SearchResu
 
 	if (!level || level === "village") {
 		for (const v of villages) {
-			if (limit && results.length >= limit) return results;
+			if (limit !== undefined && results.length >= limit) return results;
 			if (v.name.includes(upperQuery)) {
 				results.push({ level: "village", data: v });
 			}
